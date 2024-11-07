@@ -1,75 +1,73 @@
 import sys
+import asyncio
 import signal
-import threading
 
-from server import config
-from server import data_stream
+from fastapi import FastAPI, HTTPException, Request, Depends
+from fastapi.responses import JSONResponse
 
-from flask import Flask, jsonify, request
-
+from server import config, data_stream
 from server.algos import algos
 from server.data_filter import operations_callback
 
-app = Flask(__name__)
+app = FastAPI()
 
-stream_stop_event = threading.Event()
-stream_thread = threading.Thread(
-    target=data_stream.run, args=(config.SERVICE_DID, operations_callback, stream_stop_event,)
-)
-stream_thread.start()
+stream_stop_event = asyncio.Event()
 
+async def start_data_stream():
+    await data_stream.run(config.SERVICE_DID, operations_callback, stream_stop_event)
 
+# Register the startup event to launch the data stream in the background
+@app.on_event("startup")
+async def startup_event():
+    asyncio.create_task(start_data_stream())
+
+# Signal handler for graceful shutdown
 def sigint_handler(*_):
     print('Stopping data stream...')
     stream_stop_event.set()
     sys.exit(0)
 
-
 signal.signal(signal.SIGINT, sigint_handler)
 
+@app.get("/")
+async def index():
+    return "ATProto Feed Generator powered by The AT Protocol SDK for Python (https://github.com/MarshalX/atproto)."
 
-@app.route('/')
-def index():
-    return 'ATProto Feed Generator powered by The AT Protocol SDK for Python (https://github.com/MarshalX/atproto).'
-
-
-@app.route('/.well-known/did.json', methods=['GET'])
-def did_json():
+@app.get("/.well-known/did.json")
+async def did_json():
     if not config.SERVICE_DID.endswith(config.HOSTNAME):
-        return '', 404
+        raise HTTPException(status_code=404, detail="Not Found")
 
-    return jsonify({
-        '@context': ['https://www.w3.org/ns/did/v1'],
-        'id': config.SERVICE_DID,
-        'service': [
+    response_content = {
+        "@context": ["https://www.w3.org/ns/did/v1"],
+        "id": config.SERVICE_DID,
+        "service": [
             {
-                'id': '#bsky_fg',
-                'type': 'BskyFeedGenerator',
-                'serviceEndpoint': f'https://{config.HOSTNAME}'
+                "id": "#bsky_fg",
+                "type": "BskyFeedGenerator",
+                "serviceEndpoint": f"https://{config.HOSTNAME}"
             }
         ]
-    })
+    }
+    return JSONResponse(content=response_content)
 
-
-@app.route('/xrpc/app.bsky.feed.describeFeedGenerator', methods=['GET'])
-def describe_feed_generator():
-    feeds = [{'uri': uri} for uri in algos.keys()]
-    response = {
-        'encoding': 'application/json',
-        'body': {
-            'did': config.SERVICE_DID,
-            'feeds': feeds
+@app.get("/xrpc/app.bsky.feed.describeFeedGenerator")
+async def describe_feed_generator():
+    feeds = [{"uri": uri} for uri in algos.keys()]
+    response_content = {
+        "encoding": "application/json",
+        "body": {
+            "did": config.SERVICE_DID,
+            "feeds": feeds
         }
     }
-    return jsonify(response)
+    return JSONResponse(content=response_content)
 
-
-@app.route('/xrpc/app.bsky.feed.getFeedSkeleton', methods=['GET'])
-def get_feed_skeleton():
-    feed = request.args.get('feed', default=None, type=str)
+@app.get("/xrpc/app.bsky.feed.getFeedSkeleton")
+async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 20):
     algo = algos.get(feed)
     if not algo:
-        return 'Unsupported algorithm', 400
+        raise HTTPException(status_code=400, detail="Unsupported algorithm")
 
     # Example of how to check auth if giving user-specific results:
     """
@@ -77,14 +75,12 @@ def get_feed_skeleton():
     try:
         requester_did = validate_auth(request)
     except AuthorizationError:
-        return 'Unauthorized', 401
+        raise HTTPException(status_code=401, detail="Unauthorized")
     """
 
     try:
-        cursor = request.args.get('cursor', default=None, type=str)
-        limit = request.args.get('limit', default=20, type=int)
-        body = algo(cursor, limit)
+        body = await algo(cursor, limit)  # Assuming `algo` is async
     except ValueError:
-        return 'Malformed cursor', 400
+        raise HTTPException(status_code=400, detail="Malformed cursor")
 
-    return jsonify(body)
+    return JSONResponse(content=body)

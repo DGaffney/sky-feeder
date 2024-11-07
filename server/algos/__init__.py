@@ -1,5 +1,5 @@
-from . import whats_alf
+from . import algo
 
 algos = {
-    whats_alf.uri: whats_alf.handler
+    algo.uri: algo.handler
 }

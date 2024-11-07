@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 
 from atproto import models
@@ -5,6 +6,10 @@ from atproto import models
 from server.logger import logger
 from server.database import db, Post
 
+def record_matches_algo(record) -> bool:
+    matches = False
+    for facet in ALGO_MANIFEST:
+        ALGO_RULES[facet[""]]
 
 def operations_callback(ops: defaultdict) -> None:
     # Here we can filter, process, run ML classification, etc.
@@ -30,7 +35,7 @@ def operations_callback(ops: defaultdict) -> None:
         )
 
         # only alf-related posts
-        if 'alf' in record.text.lower():
+        if record_matches_algo(record):
             reply_root = reply_parent = None
             if record.reply:
                 reply_root = record.reply.root.uri
