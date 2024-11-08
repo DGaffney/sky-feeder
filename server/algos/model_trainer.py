@@ -49,7 +49,7 @@ class ModelTrainer:
 
     def fetch_records_batch(self, urls: List[str]) -> dict:
         """
-        Fetch records in batches of up to 100 posts, returning records mapped by their original URLs.
+        Fetch records in batches of up to 25 posts, returning records mapped by their original URLs.
         
         Args:
             urls (List[str]): List of URLs for the posts to fetch.
@@ -68,7 +68,7 @@ class ModelTrainer:
                 url_to_record[url] = None  # Initialize mapping with None for unfetched records
 
             # Process in batches of up to 100 URIs
-            if len(uri_batch) == 100 or url == urls[-1]:  # Either batch limit or last URL
+            if len(uri_batch) == 25 or url == urls[-1]:  # Either batch limit or last URL
                 try:
                     response = self.client.get_posts(uri_batch)
                     for uri, post in zip(uri_batch, response.posts):
@@ -106,8 +106,9 @@ class ModelTrainer:
                 y.append(label)
         return X, y
 
-    def build_model(self, urls: List[str], labels: List[int]):
+    def build_model(self, dehydrated_dataset: List[List[str]]):
         """ Main build routine """
+        urls, labels = zip(*dehydrated_dataset)
         X, y = self.accumulate_dataset(urls, labels)
         return self.train_model(X, y)
 
