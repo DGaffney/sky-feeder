@@ -1,3 +1,4 @@
+import os
 import sys
 import signal
 import threading
@@ -12,11 +13,12 @@ from server.data_filter import operations_callback
 
 app = Flask(__name__)
 
-stream_stop_event = threading.Event()
-stream_thread = threading.Thread(
-    target=data_stream.run, args=(config.SERVICE_DID, operations_callback, stream_stop_event,)
-)
-stream_thread.start()
+if os.getenv("ENABLE_DATA_STREAM") == "true":
+    stream_stop_event = threading.Event()
+    stream_thread = threading.Thread(
+        target=data_stream.run, args=(config.SERVICE_DID, operations_callback, stream_stop_event,)
+    )
+    stream_thread.start()
 
 
 def sigint_handler(*_):
