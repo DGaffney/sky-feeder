@@ -11,7 +11,7 @@ services:
     environment:
       - ENABLE_DATA_STREAM=false
     ports:
-      - "80:${PORT}"
+      - "${PORT}:${PORT}"
     command: ["api"]
 
   data-stream:
