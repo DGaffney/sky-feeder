@@ -19,12 +19,10 @@ class ProbabilityParser(BaseParser):
         dmatrix = xgb.DMatrix(np.array([features]))
         return model.predict(dmatrix)[0]
 
-    def probability_with_operator(self, params, record):
-        model_name = params[1]["model_name"]
-        operator = params[2]
-        threshold = params[3]
-        probability = self.probability_for_record(record, model_name)
-        return LogicEvaluator.compare(probability, operator, threshold)
+    def probability_with_operator(self, record, field_selector, model_params, comparator, threshold):
+        probability = self.probability_for_record(getattr(record, field_selector["var"]), model_params["model_name"])
+        return LogicEvaluator.compare(probability, comparator, threshold)
 
     def register_operations(self, logic_evaluator):
         logic_evaluator.add_operation("model_probability", self.probability_with_operator)
+
