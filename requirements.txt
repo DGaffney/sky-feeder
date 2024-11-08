@@ -7,3 +7,4 @@ sentence_transformers==3.2.1
 uvicorn==0.32.0
 xgboost==2.1.2
 model-provenance==0.1.0
+Flask~=2.3.2
