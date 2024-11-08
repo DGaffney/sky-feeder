@@ -14,7 +14,7 @@
           "anchor_text": "This is an important update"
         },
         ">=",
-        0.8
+        0.3
       ]
     },
     {
@@ -22,7 +22,7 @@
         {"var": "text"},
         {"model_name": "toxicity_model"},
         ">=",
-        0.9 
+        0.9
       ]
     }
   ]

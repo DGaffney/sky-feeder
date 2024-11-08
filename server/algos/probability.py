@@ -1,6 +1,8 @@
+import pdb
 import numpy as np
 import xgboost as xgb
 from server.algos.base import BaseParser
+from server.logic_evaluator import LogicEvaluator
 class ProbabilityParser(BaseParser):
     def __init__(self):
         self.models = {}
@@ -20,6 +22,7 @@ class ProbabilityParser(BaseParser):
         return model.predict(dmatrix)[0]
 
     def probability_with_operator(self, record, field_selector, model_params, comparator, threshold):
+        pdb.set_trace()
         probability = self.probability_for_record(getattr(record, field_selector["var"]), model_params["model_name"])
         return LogicEvaluator.compare(probability, comparator, threshold)
 
