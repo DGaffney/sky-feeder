@@ -9,11 +9,11 @@ from server.algos.probability_model import ProbabilityModel
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")
 
 class AlgoManager:
-    def __init__(self, manifest_file=MANIFEST_FILE):
+    def __init__(self, manifest_file=MANIFEST_FILE, version_hash=None):
         # Load manifest rules and dependencies
         with open(manifest_file) as f:
             self.algo_manifest = json.load(f)
-        
+        self.version_hash = version_hash
         # Initialize LogicEvaluator
         self.logic_evaluator = LogicEvaluator()
         

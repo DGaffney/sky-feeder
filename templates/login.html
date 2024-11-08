@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>Login</h2>
+<form method="post" action="/login">
+    <div class="form-group">
+        <label for="username">Username</label>
+        <small>Your name on Bluesky without the @.</small>
+        <input type="text" class="form-control" id="username" name="username" required>
+    </div>
+    <div class="form-group">
+        <label for="password">Password</label>
+        <small>Don't use your real password! Be an adult and generate an <a href="https://bsky.app/settings/app-passwords">App Password</a>.</small>
+        <input type="password" class="form-control" id="password" name="password" required>
+    </div>
+    <button type="submit" class="btn btn-primary">Login</button>
+</form>
+{% endblock %}
