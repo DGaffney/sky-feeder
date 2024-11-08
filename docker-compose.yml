@@ -5,7 +5,7 @@ services:
     build: .
     container_name: sky-feeder-app
     volumes:
-      - ./app:/usr/src/app
+      - .:/app
     env_file:
       - .env
     ports:
