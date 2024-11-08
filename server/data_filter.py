@@ -23,15 +23,15 @@ def operations_callback(ops: defaultdict) -> None:
         # print all texts just as demo that data stream works
         post_with_images = isinstance(record.embed, models.AppBskyEmbedImages.Main)
         inlined_text = record.text.replace('\n', ' ')
-        logger.info(
-            f'NEW POST '
-            f'[CREATED_AT={record.created_at}]'
-            f'[AUTHOR={author}]'
-            f'[WITH_IMAGE={post_with_images}]'
-            f': {inlined_text}'
-        )
         # only alf-related posts
         if algo_manager.record_matches_algo(record):
+            logger.info(
+                f'NEW POST '
+                f'[CREATED_AT={record.created_at}]'
+                f'[AUTHOR={author}]'
+                f'[WITH_IMAGE={post_with_images}]'
+                f': {inlined_text}'
+            )
             reply_root = reply_parent = None
             if record.reply:
                 reply_root = record.reply.root.uri
