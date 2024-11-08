@@ -7,13 +7,15 @@ from server.algos.feature_generator import FeatureGenerator
 from server.algos.transformer import TransformerParser
 from typing import List, Tuple, Optional
 
-class ModelTrainer:
-    def __init__(self, username, password, model_name, feature_modules, transformer_parser=None):
+class ProbabilityModel:
+    def __init__(self, model_name, feature_modules, transformer_parser=None, username=None, password=None):
         # Initialize the API client and log in
+        self.model = None
         self.model_name = model_name
         self.feature_modules = feature_modules
+        self.username = username
+        self.password = password
         self.client = Client()
-        self.client.login(username, password)
         # Initialize FeatureGenerator with a TransformerParser for embedding support
         self.transformer_parser = transformer_parser or TransformerParser()
         self.feature_generator = FeatureGenerator(self.transformer_parser)
@@ -57,6 +59,8 @@ class ModelTrainer:
         Returns:
             dict: A dictionary mapping each original URL to its fetched record or None if not fetched.
         """
+        if self.username and self.password:
+            self.client.login(self.username, self.password)
         url_to_record = {}
         uri_batch = []
         
@@ -134,4 +138,5 @@ class ModelTrainer:
     def load_model(self):
         """Load a previously saved model."""
         loaded_provenance_model = ModelProvenance.load(*self.file_paths())
+        self.model = loaded_provenance_model
         return loaded_provenance_model

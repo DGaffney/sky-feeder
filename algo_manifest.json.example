@@ -26,8 +26,7 @@
       },
       {
         "model_probability": [
-          {"var": "text"},
-          {"model_name": "toxicity_model"},
+          {"model_name": "news_without_science_model"},
           ">=",
           0.9
         ]
@@ -36,7 +35,7 @@
   },
   "models": [
     {
-      "model_name": "toxicity_model",
+      "model_name": "news_without_science_model",
       "training_file": "prototype_labeled_dataset.json",
       "feature_modules": [
         {"type": "time_features"},

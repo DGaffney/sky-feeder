@@ -3,7 +3,8 @@ import numpy as np
 import xgboost as xgb
 from server.algos.base import BaseParser
 from server.logic_evaluator import LogicEvaluator
-from server.feature_generator import FeatureGenerator
+from server.algos.feature_generator import FeatureGenerator
+from server.algos.probability_model import ProbabilityModel
 
 class ProbabilityParser(BaseParser):
     def __init__(self, models, transformer_parser):
@@ -15,9 +16,14 @@ class ProbabilityParser(BaseParser):
     def load_model(self, model_name):
         """Loads the XGBoost model if not already loaded."""
         if model_name not in self.models:
-            model = xgb.Booster()
-            model.load_model(f"{model_name}.json")
-            self.models[model_name] = model
+            relevant_declarations = [e for e in self.model_declarations if e['model_name'] == model_name]
+            if relevant_declarations:
+                model_declaration = relevant_declarations[0]
+                self.models[model_name] = ProbabilityModel(
+                    model_declaration["model_name"],
+                    model_declaration["feature_modules"]
+                )
+                self.models[model_name].load_model()
         return self.models[model_name]
 
     def get_feature_modules_for_model(self, model_name):
@@ -31,15 +37,14 @@ class ProbabilityParser(BaseParser):
         """Generates features for the model and evaluates probability based on the record."""
         model = self.load_model(model_name)
         feature_modules = self.get_feature_modules_for_model(model_name)
-
         # Use FeatureGenerator to generate features based on specified modules
         features = self.feature_generator.generate_features(record, feature_modules)
-        dmatrix = xgb.DMatrix(np.array([features]))
-        return model.predict(dmatrix)[0]
+        # Don't laugh at this, noobody look, nobody look https://www.youtube.com/watch?v=E8Ew6K0W3RY
+        return float(model.model.model.predict_proba([features])[0][0])
 
-    def probability_with_operator(self, record, field_selector, model_params, comparator, threshold):
+    def probability_with_operator(self, record, model_params, comparator, threshold):
         """Evaluates the probability and applies a comparison operator against the threshold."""
-        probability = self.probability_for_record(getattr(record, field_selector["var"]), model_params["model_name"])
+        probability = self.probability_for_record(record, model_params["model_name"])
         return LogicEvaluator.compare(probability, comparator, threshold)
 
     def register_operations(self, logic_evaluator):

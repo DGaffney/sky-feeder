@@ -4,7 +4,7 @@ from server.logic_evaluator import LogicEvaluator
 from server.algos.probability import ProbabilityParser
 from server.algos.regex import RegexParser
 from server.algos.transformer import TransformerParser
-from server.algos.model_trainer import ModelTrainer
+from server.algos.probability_model import ProbabilityModel
 
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")
 
@@ -39,17 +39,15 @@ class AlgoManager:
     def build_manifest_models(self):
         username = self.algo_manifest["author"]["username"]
         password = self.algo_manifest["author"]["password"]
-        model = {'model_name': 'news_without_science_model', 'training_file': 'prototype_labeled_dataset.json', 'feature_modules': [{'type': 'time_features'}, {'type': 'vectorizer', 'model_name': 'all-MiniLM-L6-v2'}, {'type': 'post_metadata'}]}
-        username = "devingaffney.com"
-        password = "hguj-nz5b-fb3g-b57a"
         for model in self.models:
-            model_trainer = ModelTrainer(
+            probability_model = ProbabilityModel(
+                model["model_name"],
+                model["feature_modules"],
+                None,
                 username,
                 password,
-                model["model_name"],
-                model["feature_modules"]
             )
-            model_trainer.build_model(json.loads(open(model["training_file"]).read()))
+            probability_model.build_model(json.loads(open(model["training_file"]).read()))
 
 # Initialize the manager
 algo_manager = AlgoManager()
