@@ -72,7 +72,7 @@ async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 2
         raise HTTPException(status_code=400, detail="Unsupported algorithm")
 
     try:
-        body = await algo(cursor, limit)
+        body = algo(cursor, limit)
     except ValueError:
         raise HTTPException(status_code=400, detail="Malformed cursor")
 
