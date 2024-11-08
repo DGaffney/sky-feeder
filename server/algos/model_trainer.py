@@ -1,5 +1,6 @@
 import xgboost as xgb
 import joblib
+from model_provenance import ModelProvenance
 from atproto import AtUri, Client, IdResolver, models
 from sklearn.model_selection import train_test_split
 from server.algos.feature_generator import FeatureGenerator
@@ -7,11 +8,12 @@ from server.algos.transformer import TransformerParser
 from typing import List, Tuple, Optional
 
 class ModelTrainer:
-    def __init__(self, username, password, transformer_parser=None):
+    def __init__(self, username, password, model_name, feature_modules, transformer_parser=None):
         # Initialize the API client and log in
+        self.model_name = model_name
+        self.feature_modules = feature_modules
         self.client = Client()
         self.client.login(username, password)
-        
         # Initialize FeatureGenerator with a TransformerParser for embedding support
         self.transformer_parser = transformer_parser or TransformerParser()
         self.feature_generator = FeatureGenerator(self.transformer_parser)
@@ -80,7 +82,7 @@ class ModelTrainer:
 
         return url_to_record
 
-    def accumulate_dataset(self, urls: List[str], labels: List[int], feature_modules: List[dict]) -> Tuple[List, List]:
+    def accumulate_dataset(self, urls: List[str], labels: List[int]) -> Tuple[List, List]:
         """
         Given a list of URLs and labels, fetch records, extract features,
         and build a dataset.
@@ -99,30 +101,36 @@ class ModelTrainer:
         for url, label in zip(urls, labels):
             record = records.get(url)
             if record:
-                features = self.feature_generator.generate_features(record, feature_modules)
+                features = self.feature_generator.generate_features(record, self.feature_modules)
                 X.append(features)
                 y.append(label)
         return X, y
 
-    def train_model(self, X: List, y: List, model_name: str = "default_model"):
+    def build_model(self, urls: List[str], labels: List[int]):
+        """ Main build routine """
+        X, y = self.accumulate_dataset(urls, labels)
+        return self.train_model(X, y)
+
+    def file_paths(self):
+        return f"{self.model_name}_model.joblib", f"{self.model_name}_manifest.json", f"{self.model_name}_sample_dataset.joblib"
+
+    def train_model(self, X: List, y: List):
         """Train an XGBoost model and save it along with the feature generator."""
         X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
         
         # Initialize and train the XGBoost model
         model = xgb.XGBClassifier(objective="binary:logistic", eval_metric="logloss")
-        model.fit(X_train, y_train)
-        
+        provenance_model = ModelProvenance(model, version="1.0.0", seed=42)
+        provenance_model.fit(X_train, y_train)
         # Evaluate the model
         accuracy = model.score(X_test, y_test)
         print(f"Model trained with accuracy: {accuracy:.2f}")
 
         # Save model and feature generator
-        model_path = f"{model_name}.joblib"
-        joblib.dump((model, self.feature_generator), model_path)
-        print(f"Model saved to {model_path}")
+        provenance_model.save(*self.file_paths())
+        return provenance_model
 
-    def load_model(self, model_name="default_model"):
+    def load_model(self):
         """Load a previously saved model."""
-        model_path = f"{model_name}.joblib"
-        model, feature_generator = joblib.load(model_path)
-        return model, feature_generator
+        loaded_provenance_model = ModelProvenance.load(*self.file_paths())
+        return loaded_provenance_model

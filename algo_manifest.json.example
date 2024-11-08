@@ -1,0 +1,52 @@
+{
+  "filter": {
+    "and": [
+      {
+        "regex_matches": [
+          {"var": "text"},
+          "\\bimportant\\b"
+        ]
+      },
+      {
+        "regex_negation_matches": [
+          {"var": "text"},
+          "\\bunwanted_term\\b"
+        ]
+      },
+      {
+        "text_similarity": [
+          {"var": "text"},
+          {
+            "model_name": "all-MiniLM-L6-v2",
+            "anchor_text": "This is an important update"
+          },
+          ">=",
+          0.3
+        ]
+      },
+      {
+        "model_probability": [
+          {"var": "text"},
+          {"model_name": "toxicity_model"},
+          ">=",
+          0.9
+        ]
+      }
+    ]
+  },
+  "models": [
+    {
+      "model_name": "toxicity_model",
+      "training_file": "prototype_labeled_dataset.json",
+      "feature_modules": [
+        {"type": "time_features"},
+        {"type": "vectorizer", "model_name": "all-MiniLM-L6-v2"},
+        {"type": "post_metadata"}
+      ]
+    }
+  ],
+  "author": {
+      "username": "devingaffney.com",
+      "password": "app-password"
+  }
+}
