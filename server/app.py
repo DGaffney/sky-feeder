@@ -1,3 +1,4 @@
+import os
 import sys
 import asyncio
 import signal
@@ -16,10 +17,11 @@ stream_stop_event = asyncio.Event()
 async def start_data_stream():
     await data_stream.run(config.SERVICE_DID, operations_callback, stream_stop_event)
 
-# Register the startup event to launch the data stream in the background
-@app.on_event("startup")
-async def startup_event():
-    asyncio.create_task(start_data_stream())
+# Conditionally start the data stream on startup
+if os.getenv("ENABLE_DATA_STREAM") == "true":
+    @app.on_event("startup")
+    async def startup_event():
+        asyncio.create_task(start_data_stream())
 
 # Signal handler for graceful shutdown
 def sigint_handler(*_):
@@ -69,17 +71,8 @@ async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 2
     if not algo:
         raise HTTPException(status_code=400, detail="Unsupported algorithm")
 
-    # Example of how to check auth if giving user-specific results:
-    """
-    from server.auth import AuthorizationError, validate_auth
     try:
-        requester_did = validate_auth(request)
-    except AuthorizationError:
-        raise HTTPException(status_code=401, detail="Unauthorized")
-    """
-
-    try:
-        body = await algo(cursor, limit)  # Assuming `algo` is async
+        body = await algo(cursor, limit)
     except ValueError:
         raise HTTPException(status_code=400, detail="Malformed cursor")
 
