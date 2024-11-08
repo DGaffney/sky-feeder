@@ -113,7 +113,7 @@ class ModelTrainer:
         return self.train_model(X, y)
 
     def file_paths(self):
-        return f"{self.model_name}_model.joblib", f"{self.model_name}_manifest.json", f"{self.model_name}_sample_dataset.joblib"
+        return f"./probability_models/{self.model_name}_model.joblib", f"./probability_models/{self.model_name}_manifest.json", f"./probability_models/{self.model_name}_sample_dataset.joblib"
 
     def train_model(self, X: List, y: List):
         """Train an XGBoost model and save it along with the feature generator."""
