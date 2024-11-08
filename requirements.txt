@@ -5,3 +5,4 @@ python-dotenv~=1.0.0
 json_logic==0.6.3
 sentence_transformers==3.2.1
 uvicorn==0.32.0
+xgboost==2.1.2

@@ -22,4 +22,5 @@ ENV HOST="0.0.0.0"
 ENV PORT="8000"
 
 # Run the application using uvicorn
-CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sleep", "infinity"]
+# CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,0 +1,6 @@
+{
+  "transformer": {
+    "all-MiniLM-L6-v2": "models/all-MiniLM-L6-v2"
+  },
+  "probability": {}
+}

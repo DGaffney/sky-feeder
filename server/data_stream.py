@@ -7,9 +7,9 @@ from server.database import SubscriptionState
 from server.logger import logger
 
 _INTERESTED_RECORDS = {
-    models.AppBskyFeedLike: models.ids.AppBskyFeedLike,
+    # models.AppBskyFeedLike: modelsx.ids.AppBskyFeedLike,
     models.AppBskyFeedPost: models.ids.AppBskyFeedPost,
-    models.AppBskyGraphFollow: models.ids.AppBskyGraphFollow,
+    # models.AppBskyGraphFollow: models.ids.AppBskyGraphFollow,
 }
 
 
