@@ -1,12 +1,26 @@
 version: '3.9'
 
 services:
-  app:
+  api:
     build: .
-    container_name: sky-feeder-app
+    container_name: sky-feeder-api
     volumes:
       - .:/app
     env_file:
       - .env
+    environment:
+      - ENABLE_DATA_STREAM=false
     ports:
-      - "${PORT}:${PORT}"
+      - "80:${PORT}"
+    command: ["api"]
+
+  data-stream:
+    build: .
+    container_name: sky-feeder-data-stream
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    environment:
+      - ENABLE_DATA_STREAM=true
+    command: ["data-stream"]

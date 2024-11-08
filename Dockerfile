@@ -16,11 +16,10 @@ COPY . .
 # Expose the application port
 EXPOSE 8000
 
-# Define environment variables
+# Default environment variables
 ENV APP_MODULE="server.app:app"
 ENV HOST="0.0.0.0"
 ENV PORT="8000"
 
-# Run the application using uvicorn
-CMD ["sleep", "infinity"]
-# CMD ["uvicorn", "server.app:app", "--host", "0.0.0.0", "--port", "8000"]
+# Entrypoint for both API server and data stream services
+ENTRYPOINT ["./entrypoint.sh"]
