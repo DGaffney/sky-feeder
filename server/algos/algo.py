@@ -1,21 +1,17 @@
 from datetime import datetime
 from typing import Optional
-
 from sqlalchemy import and_, or_
 from sqlalchemy.orm import Session
 from server.database import UserAlgorithm, Post, post_user_algorithm_association
 
 CURSOR_EOF = 'eof'
 
-
 def get_posts(db: Session, algo: UserAlgorithm, cursor: Optional[str], limit: int) -> dict:
-    # Query posts associated with the specific UserAlgorithm
+    # Initialize the query to fetch posts associated with the specific UserAlgorithm
     posts_query = (
         db.query(Post)
         .join(post_user_algorithm_association, Post.id == post_user_algorithm_association.c.post_id)
         .filter(post_user_algorithm_association.c.user_algorithm_id == algo.id)
-        .order_by(Post.indexed_at.desc(), Post.cid.desc())
-        .limit(limit)
     )
 
     # Apply cursor-based pagination if a cursor is provided
@@ -31,14 +27,17 @@ def get_posts(db: Session, algo: UserAlgorithm, cursor: Optional[str], limit: in
 
         indexed_at, cid = cursor_parts
         indexed_at = datetime.fromtimestamp(int(indexed_at) / 1000)
-        
-        # Add filtering for cursor-based pagination
+
+        # Add filtering for cursor-based pagination before limit
         posts_query = posts_query.filter(
             or_(
                 and_(Post.indexed_at == indexed_at, Post.cid < cid),
                 Post.indexed_at < indexed_at
             )
         )
+
+    # Apply ordering and limit after filtering
+    posts_query = posts_query.order_by(Post.indexed_at.desc(), Post.cid.desc()).limit(limit)
 
     # Execute the query and fetch results
     posts = posts_query.all()
