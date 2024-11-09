@@ -20,6 +20,8 @@ SECRET = os.getenv("SECRET_KEY", "foo")
 app.add_middleware(SessionMiddleware, secret_key=SECRET)
 
 templates = Jinja2Templates(directory="templates")
+manager = LoginManager(SECRET, token_url="/login", use_cookie=True)
+manager.cookie_name = "auth_cookie"
 
 stream_stop_event = asyncio.Event()
 
