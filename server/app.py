@@ -8,7 +8,6 @@ from fastapi.responses import JSONResponse, RedirectResponse, HTMLResponse
 from fastapi.templating import Jinja2Templates
 from fastapi_login import LoginManager
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.staticfiles import StaticFiles
 from datetime import datetime
 
 from server.bluesky_api import BlueskyAPI, is_app_passwordy
@@ -21,7 +20,6 @@ SECRET = os.getenv("SECRET_KEY", "foo")
 app.add_middleware(SessionMiddleware, secret_key=SECRET)
 
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
 
 stream_stop_event = asyncio.Event()
 
