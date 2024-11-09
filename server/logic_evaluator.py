@@ -1,3 +1,4 @@
+from server.logger import logger
 class LogicEvaluator:
     def __init__(self):
         self.operations = {}
@@ -14,6 +15,7 @@ class LogicEvaluator:
             return any(self.evaluate(cond, record) for cond in condition["or"])
         else:
             for op, params in condition.items():
+                logger.info(f'Op is {op}, params is {params}')
                 if op in self.operations:
                     return self.operations[op](record, *params)
             raise ValueError(f"Unknown operation '{op}'")
