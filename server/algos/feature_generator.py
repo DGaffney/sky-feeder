@@ -2,12 +2,8 @@
 
 import numpy as np
 from server.algos.transformer import TransformerParser
-
+from server.algos.shared_model_store import SharedModelStore
 class FeatureGenerator:
-    def __init__(self, transformer_parser):
-        """Initialize with a shared TransformerParser instance."""
-        self.transformer_parser = transformer_parser
-
     def generate_features(self, record, feature_modules):
         """Generates features for a given record based on specified feature modules."""
         features = []
@@ -35,9 +31,9 @@ class FeatureGenerator:
         """Generates text embeddings using a specified transformer model."""
         text = getattr(record, "text", "")
         if not text:
-            return [0.0] * self.transformer_parser.load_model(model_name).get_sentence_embedding_dimension()
+            return [0.0] * SharedModelStore.get_vector_model(model_name).get_sentence_embedding_dimension()
         # Get the embedding via TransformerParser
-        embedding = self.transformer_parser.get_embedding(text, model_name)
+        embedding = TransformerParser().get_embedding(text, model_name)
         return embedding.tolist()
 
     def post_metadata(self, record):

@@ -9,22 +9,16 @@ from server.algos.probability_model import ProbabilityModel
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")
 
 class AlgoManager:
-    def __init__(self, manifest_file=MANIFEST_FILE, version_hash=None):
-        # Load manifest rules and dependencies
-        with open(manifest_file) as f:
-            self.algo_manifest = json.load(f)
+    def __init__(self, algo_manifest, version_hash=None):
+        # Store the version and initialize parsers with shared model references
+        self.algo_manifest = algo_manifest
         self.version_hash = version_hash
-        # Initialize LogicEvaluator
         self.logic_evaluator = LogicEvaluator()
-        
-        # Initialize and register parsers
-        transformer_parser = TransformerParser()
         self.parsers = {
-            "probability": ProbabilityParser(self.models, transformer_parser),
+            "probability": ProbabilityParser(algo_manifest.get("models", [])),
             "regex": RegexParser(),
-            "transformer": transformer_parser,
+            "transformer": TransformerParser(),
         }
-        
         for parser in self.parsers.values():
             parser.register_operations(self.logic_evaluator)
 
@@ -49,5 +43,3 @@ class AlgoManager:
             )
             probability_model.build_model(json.loads(open(model["training_file"]).read()))
 
-# Initialize the manager
-algo_manager = AlgoManager()

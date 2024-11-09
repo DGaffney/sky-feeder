@@ -1,5 +1,6 @@
 import json
 import hashlib
+from typing import Optional
 from server.algos.manager import AlgoManager
 class AlgoDatabaseManager:
     def generate_version_hash(self, manifest: dict) -> str:

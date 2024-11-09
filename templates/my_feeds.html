@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Your Feeds</h2>
+
+    <!-- Existing Algos Table -->
+    <table class="table table-striped mt-4">
+        <thead>
+            <tr>
+                <th scope="col">Feed Name</th>
+                <th scope="col">Description</th>
+                <th scope="col">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for algo in user_algos %}
+            <tr>
+                <td>{{ algo.record_name }}</td>
+                <td>{{ algo.description }}</td>
+                <td>
+                    <!-- Edit Button -->
+                    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editAlgoModal" data-algo-id="{{ algo.id }}" data-algo-name="{{ algo.record_name }}" data-algo-display-name="{{ algo.display_name }}" data-algo-description="{{ algo.description }}">Edit</button>
+
+                    <!-- Delete Button -->
+                    <form action="{{ url_for('delete_algo') }}" method="post" class="d-inline">
+                        <input type="hidden" name="algo_id" value="{{ algo.id }}">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this algorithm?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- Add New Algo Button -->
+    <button class="btn btn-success mt-4" data-bs-toggle="modal" data-bs-target="#addAlgoModal">Add New Feed</button>
+</div>
+
+<!-- Add Algo Modal -->
+<div class="modal fade" id="addAlgoModal" tabindex="-1" aria-labelledby="addAlgoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_algo') }}" method="post">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addAlgoModalLabel">Add New Feed</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="feedName" class="form-label">Feed Name</label>
+                        <input type="text" class="form-control" id="feedName" name="feed_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="displayName" class="form-label">Display Name</label>
+                        <input type="text" class="form-control" id="displayName" name="display_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="feedManifest" class="form-label">Feed JSON Manifest</label>
+                        <textarea id="feedManifest" name="feed_manifest" class="form-control" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Feed</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Algo Modal -->
+<div class="modal fade" id="editAlgoModal" tabindex="-1" aria-labelledby="editAlgoModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('edit_algo') }}" method="post">
+                <input type="hidden" name="algo_id" id="editAlgoId">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editAlgoModalLabel">Edit Feed</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="editFeedName" class="form-label">Feed Name (rkey)</label>
+                        <input type="text" class="form-control" id="editFeedName" name="feed_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDisplayName" class="form-label">Display Name</label>
+                        <input type="text" class="form-control" id="editDisplayName" name="display_name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editDescription" class="form-label">Description</label>
+                        <textarea id="editDescription" name="description" class="form-control" rows="3" required></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editFeedManifest" class="form-label">Feed JSON Manifest</label>
+                        <textarea id="editFeedManifest" name="feed_manifest" class="form-control" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Update Feed</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    var algoManifests = {
+        {% for algo in user_algos %}
+            "{{ algo.id }}": {{ algo.algo_manifest | tojson }},
+        {% endfor %}
+    };
+    document.addEventListener('DOMContentLoaded', function () {
+        // Initialize CodeMirror for JSON manifest fields
+        var addManifestEditor = CodeMirror.fromTextArea(document.getElementById("feedManifest"), {
+            mode: { name: "javascript", json: true },
+            lineNumbers: true,
+            theme: "default"
+        });
+
+        var editManifestEditor = CodeMirror.fromTextArea(document.getElementById("editFeedManifest"), {
+            mode: { name: "javascript", json: true },
+            lineNumbers: true,
+            theme: "default"
+        });
+
+        // Populate Edit Modal with algo data after it’s shown
+        $('#editAlgoModal').on('show.bs.modal', function (event) {
+            var button = $(event.relatedTarget);
+            var algoId = button.data('algo-id');
+            var algoName = button.data('algo-name');
+            var algoDisplayName = button.data('algo-display-name');
+            var algoDescription = button.data('algo-description');
+
+            var modal = $(this);
+            modal.find('#editAlgoId').val(algoId);
+            modal.find('#editFeedName').val(algoName);
+            modal.find('#editDisplayName').val(algoDisplayName);
+            modal.find('#editDescription').val(algoDescription);
+
+            // Get the manifest for this algoId from algoManifests
+            var algoManifest = algoManifests[algoId];
+
+            // Pretty-print JSON and set value in CodeMirror editor
+            setTimeout(function () {
+                try {
+                    var prettyManifest = JSON.stringify(algoManifest, null, 4); // Pretty format with 4 spaces
+                    editManifestEditor.setValue(prettyManifest);
+                } catch (e) {
+                    console.error("Invalid JSON format in manifest:", e);
+                    editManifestEditor.setValue(''); // Set empty if JSON parsing fails
+                }
+                editManifestEditor.refresh(); // Refresh to ensure it renders immediately
+            }, 100);
+        });
+    });
+</script>
+{% endblock %}

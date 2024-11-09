@@ -1,40 +1,93 @@
+import os
 from datetime import datetime
+from sqlalchemy import (
+    create_engine, Column, String, DateTime, BigInteger, Integer, ForeignKey, Table, Text, UniqueConstraint
+)
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy.dialects.postgresql import JSONB
 
-import peewee
+from server.bluesky_api import BlueskyAPI
 
-db = peewee.SqliteDatabase('feed_database.db')
+# Configure the database connection
+DATABASE_URL = os.getenv("DATABASE_URL")
+# Set up the database engine
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Define the base model
+Base = declarative_base()
 
-class BaseModel(peewee.Model):
-    class Meta:
-        database = db
-
-
-class Post(BaseModel):
-    uri = peewee.CharField(index=True)
-    cid = peewee.CharField()
-    reply_parent = peewee.CharField(null=True, default=None)
-    reply_root = peewee.CharField(null=True, default=None)
-    indexed_at = peewee.DateTimeField(default=datetime.utcnow)
-
-
-class SubscriptionState(BaseModel):
-    service = peewee.CharField(unique=True)
-    cursor = peewee.IntegerField()
-
-class UserAlgorithm(BaseModel):
-    user_id = peewee.CharField()
-    algo_uri = peewee.CharField()
-    manifest = peewee.TextField()      # Store the JSON manifest as a string
-    version_hash = peewee.CharField()   # Hash to track version changes
-
-    class Meta:
-        indexes = (
-            (('user_id', 'algo_uri'), True),  # unique constraint on user_id and algo_uri
-        )
+# Many-to-many association table between Post and UserAlgorithm
+post_user_algorithm_association = Table(
+    'post_user_algorithm', Base.metadata,
+    Column('post_id', Integer, ForeignKey('posts.id'), primary_key=True),
+    Column('user_algorithm_id', Integer, ForeignKey('user_algorithms.id'), primary_key=True),
+    UniqueConstraint('post_id', 'user_algorithm_id', name='uix_post_user_algorithm')
+)
 
 
+class Post(Base):
+    __tablename__ = 'posts'
 
-if db.is_closed():
-    db.connect()
-    db.create_tables([Post, SubscriptionState])
+    id = Column(Integer, primary_key=True, index=True)
+    uri = Column(String, index=True)
+    cid = Column(String)
+    author = Column(String)
+    reply_parent = Column(String, nullable=True, default=None)
+    reply_root = Column(String, nullable=True, default=None)
+    indexed_at = Column(DateTime, default=datetime.utcnow)
+
+    # Many-to-many relationship with UserAlgorithm
+    algorithms = relationship("UserAlgorithm", secondary=post_user_algorithm_association, back_populates="posts")
+
+
+class SubscriptionState(Base):
+    __tablename__ = 'subscription_states'
+
+    id = Column(Integer, primary_key=True)
+    service = Column(String, unique=True)
+    cursor = Column(BigInteger)
+
+
+class UserAlgorithm(Base):
+    __tablename__ = 'user_algorithms'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, index=True)
+    algo_uri = Column(String)
+    algo_manifest = Column(JSONB)
+    version_hash = Column(String)
+    record_name = Column(String)
+    display_name = Column(String)
+    description = Column(String)
+    feed_did = Column(String)
+
+    # Many-to-many relationship with Post
+    posts = relationship("Post", secondary=post_user_algorithm_association, back_populates="algorithms")
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'algo_uri', name='uix_user_algo_uri'),
+    )
+    def publish_feed(self, username, password, record_name, display_name, description):
+        return BlueskyAPI(username, password).publish_feed(record_name, display_name, description)
+
+    def delete_feed(self, username, password):
+        deleted_feed = BlueskyAPI(username, password).delete_feed(self.algo_uri)
+
+    def update_feed(self, username, password):
+        return BlueskyAPI(username, password).publish_feed(self.record_name, self.display_name, self.description, self.feed_did)
+
+
+# Initialize the database tables
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# Dependency: create a new session for each request
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+

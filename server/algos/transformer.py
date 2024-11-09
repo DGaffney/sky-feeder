@@ -1,20 +1,13 @@
 import numpy as np
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-from server.algos.base import BaseParser
 from server.logic_evaluator import LogicEvaluator
+from server.algos.base import BaseParser
+from server.algos.shared_model_store import SharedModelStore
 
 class TransformerParser(BaseParser):
-    def __init__(self):
-        self.vector_models = {}
-
-    def load_model(self, model_name):
-        if model_name not in self.vector_models:
-            self.vector_models[model_name] = SentenceTransformer(model_name)
-        return self.vector_models[model_name]
-
     def get_embedding(self, text, model_name):
-        model = self.load_model(model_name)
+        model = SharedModelStore.get_vector_model(model_name)
         return model.encode(text)
 
     def text_similarity_operator(self, record, field_selector, model_params, comparator, threshold):

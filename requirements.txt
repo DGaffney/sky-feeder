@@ -10,3 +10,7 @@ model-provenance==0.1.0
 Flask~=2.3.2
 fastapi-login
 python-multipart
+alembic
+sqlalchemy
+psycopg2-binary
+rq

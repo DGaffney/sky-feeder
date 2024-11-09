@@ -10,8 +10,11 @@ services:
       - .env
     environment:
       - ENABLE_DATA_STREAM=false
+      - DATABASE_URL=${DATABASE_URL}
     ports:
       - "${PORT}:${PORT}"
+    depends_on:
+      - postgres-db
     command: ["api"]
 
   data-stream:
@@ -23,4 +26,44 @@ services:
       - .env
     environment:
       - ENABLE_DATA_STREAM=true
+      - DATABASE_URL=${DATABASE_URL}
+    depends_on:
+      - postgres-db
     command: ["data-stream"]
+
+  postgres-db:
+    image: ankane/pgvector:latest
+    container_name: sky-feeder-db
+    env_file:
+      - .env
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:alpine
+    container_name: sky-feeder-redis
+    ports:
+      - "6379:6379"
+
+  algo-matcher-worker:
+    build: .
+    # container_name: sky-feeder-algo-matcher
+    environment:
+      - REDIS_URL=redis://redis:6379/0
+      - DATABASE_URL=${DATABASE_URL}
+    volumes:
+      - .:/app
+    command: ["algo-matcher-worker"]
+    depends_on:
+      - redis
+    deploy:
+      replicas: 5
+
+volumes:
+  postgres-data:

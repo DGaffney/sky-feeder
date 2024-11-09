@@ -5,26 +5,17 @@ from server.algos.base import BaseParser
 from server.logic_evaluator import LogicEvaluator
 from server.algos.feature_generator import FeatureGenerator
 from server.algos.probability_model import ProbabilityModel
+from server.algos.shared_model_store import SharedModelStore
 
 class ProbabilityParser(BaseParser):
-    def __init__(self, models, transformer_parser):
+    def __init__(self, models):
         self.model_declarations = models
-        self.transformer_parser = transformer_parser
-        self.models = {}
-        self.feature_generator = FeatureGenerator(transformer_parser)  # Initialize with TransformerParser
+        self.feature_generator = FeatureGenerator()
 
     def load_model(self, model_name):
         """Loads the XGBoost model if not already loaded."""
-        if model_name not in self.models:
-            relevant_declarations = [e for e in self.model_declarations if e['model_name'] == model_name]
-            if relevant_declarations:
-                model_declaration = relevant_declarations[0]
-                self.models[model_name] = ProbabilityModel(
-                    model_declaration["model_name"],
-                    model_declaration["feature_modules"]
-                )
-                self.models[model_name].load_model()
-        return self.models[model_name]
+        feature_modules = self.get_feature_modules_for_model(model_name)
+        return SharedModelStore.get_probability_model(model_name, feature_modules)
 
     def get_feature_modules_for_model(self, model_name):
         """Finds feature modules for the specified model in the manifest."""
