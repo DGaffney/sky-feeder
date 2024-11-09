@@ -35,7 +35,7 @@ def datetimeformat(value, format='%Y-%m-%d %I:%M %p'):
 templates.env.filters['datetimeformat'] = datetimeformat
 
 @app.get("/")
-async def index():
+async def index(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/.well-known/did.json")
