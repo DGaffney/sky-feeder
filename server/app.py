@@ -67,7 +67,7 @@ async def describe_feed_generator(db: Session = Depends(get_db)):
             "feeds": feeds
         }
     }
-    return JSONResponse(content=response_content)
+    return JSONResponse(content={"feeds": feeds})
 
 @app.get("/xrpc/app.bsky.feed.getFeedSkeleton")
 async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 20, db: Session = Depends(get_db)):
