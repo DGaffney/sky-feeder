@@ -48,8 +48,8 @@ async def did_json():
         "id": config.SERVICE_DID,
         "service": [
             {
-                "id": "#bsky_fg_plus",
-                "type": "BskyFeedGeneratorPlus",
+                "id": "#bsky_fg",
+                "type": "BskyFeedGenerator",
                 "serviceEndpoint": f"https://{config.HOSTNAME}"
             }
         ]
