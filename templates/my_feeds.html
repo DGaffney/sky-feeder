@@ -39,7 +39,7 @@
 
 <!-- Add Algo Modal -->
 <div class="modal fade" id="addAlgoModal" tabindex="-1" aria-labelledby="addAlgoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ url_for('add_algo') }}" method="post">
                 <div class="modal-header">
@@ -75,7 +75,7 @@
 
 <!-- Edit Algo Modal -->
 <div class="modal fade" id="editAlgoModal" tabindex="-1" aria-labelledby="editAlgoModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <form action="{{ url_for('edit_algo') }}" method="post">
                 <input type="hidden" name="algo_id" id="editAlgoId">
