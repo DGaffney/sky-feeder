@@ -121,7 +121,7 @@ async def add_algo(
         new_algo = UserAlgorithm(
             user_id=client.client.me.did,
             algo_uri=feed_name,
-            algo_manifest=feed_manifest,
+            algo_manifest=json.loads(feed_manifest),
             record_name=feed_name,
             display_name=display_name,
             description=description,
