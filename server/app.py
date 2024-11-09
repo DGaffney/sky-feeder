@@ -77,6 +77,8 @@ async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 2
 
     try:
         body = get_posts(db, algo, cursor, limit)
+        if body["feed"] == []:
+            body = {"feed": []}
     except ValueError:
         raise HTTPException(status_code=400, detail="Malformed cursor")
 
