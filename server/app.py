@@ -36,8 +36,7 @@ templates.env.filters['datetimeformat'] = datetimeformat
 
 @app.get("/")
 async def index(request: Request):
-    return 'ATProto Feed Generator powered by The AT Protocol SDK for Python (https://github.com/MarshalX/atproto).'
-    # return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @app.get("/.well-known/did.json")
 async def did_json():
