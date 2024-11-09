@@ -17,7 +17,6 @@ def operations_callback(ops: defaultdict) -> None:
 
     posts_to_create = []
     for created_post in ops[models.ids.AppBskyFeedPost]['created']:
-        logger.info(created_post)
         author = created_post['author']
         record = created_post['record']
 
