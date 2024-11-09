@@ -63,7 +63,7 @@ services:
     depends_on:
       - redis
     deploy:
-      replicas: 5
+      replicas: 10
 
 volumes:
   postgres-data:

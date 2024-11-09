@@ -4,6 +4,7 @@ from server.logic_evaluator import LogicEvaluator
 from server.algos.probability import ProbabilityParser
 from server.algos.regex import RegexParser
 from server.algos.transformer import TransformerParser
+from server.algos.attribute import AttributeParser
 from server.algos.probability_model import ProbabilityModel
 
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")
@@ -18,6 +19,7 @@ class AlgoManager:
             "probability": ProbabilityParser(algo_manifest.get("models", [])),
             "regex": RegexParser(),
             "transformer": TransformerParser(),
+            "attribute": AttributeParser(),
         }
         for parser in self.parsers.values():
             parser.register_operations(self.logic_evaluator)
