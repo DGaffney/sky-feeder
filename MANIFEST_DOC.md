@@ -342,6 +342,6 @@ If an unsupported operator is passed to `compare`, it raises a `ValueError`, ens
 
 **Example Error Message**:
 
-```json
-raise ValueError(f"Unknown comparator '{operator}'")`
+```python
+raise ValueError(f"Unknown comparator '{operator}'")
 ```
