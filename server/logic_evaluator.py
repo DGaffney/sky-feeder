@@ -10,9 +10,9 @@ class LogicEvaluator:
     def evaluate(self, condition, record, create_info):
         """Evaluates a JSON-like condition structure."""
         if "and" in condition:
-            return all(self.evaluate(cond, record) for cond in condition["and"])
+            return all(self.evaluate(cond, record, create_info) for cond in condition["and"])
         elif "or" in condition:
-            return any(self.evaluate(cond, record) for cond in condition["or"])
+            return any(self.evaluate(cond, record, create_info) for cond in condition["or"])
         else:
             for op, params in condition.items():
                 if op in self.operations:
