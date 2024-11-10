@@ -11,7 +11,7 @@ class BlueskyAPI:
         self.username = username
         self.password = password
         self.client = Client()
-        if not self.session_string:
+        if not session_string:
             self.client.login(self.username, self.password)
             self.session_string = client.export_session_string()
         else:
