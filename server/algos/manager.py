@@ -5,6 +5,7 @@ from server.algos.probability import ProbabilityParser
 from server.algos.regex import RegexParser
 from server.algos.transformer import TransformerParser
 from server.algos.attribute import AttributeParser
+from server.algos.social import SocialParser
 from server.algos.probability_model import ProbabilityModel
 
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")
@@ -20,9 +21,17 @@ class AlgoManager:
             "regex": RegexParser(),
             "transformer": TransformerParser(),
             "attribute": AttributeParser(),
+            "social": SocialParser(*self.username_password_from_algo_manifest),
         }
         for parser in self.parsers.values():
             parser.register_operations(self.logic_evaluator)
+
+    @property
+    def username_password_from_algo_manifest(self):
+        return [
+            (self.algo_manifest.get("author", {}) or {}).get("username"),
+            (self.algo_manifest.get("author", {}) or {}).get("password")
+        ]
 
     @property
     def models(self):

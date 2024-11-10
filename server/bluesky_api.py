@@ -36,6 +36,27 @@ class BlueskyAPI:
     def delete_feed(self, algo_uri):
         return self.client.app.bsky.feed.generator.delete(self.client.me.did, AtUri.from_str(algo_uri).rkey)
     
+    def get_all_follows(self, actor_handle):
+        cursor = None
+        follows = []
+        while True:
+            response = self.client.app.bsky.graph.get_follows({"actor": actor_handle, "cursor": cursor, "limit": 100})
+            follows.extend(response.follows)
+            if not response.cursor:
+                break
+            cursor = response.cursor
+        return follows
+
+    def get_all_follower_dids(self, actor_handle):
+        cursor = None
+        followers = []
+        while True:
+            response = self.client.app.bsky.graph.get_followers({"actor": actor_handle, "cursor": cursor, "limit": 100})
+            followers.extend(response.followers)
+            if not response.cursor:
+                break
+            cursor = response.cursor
+        return followers
 
 def is_app_passwordy(s: str) -> bool:
     """

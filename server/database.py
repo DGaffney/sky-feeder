@@ -50,6 +50,16 @@ class SubscriptionState(Base):
     cursor = Column(BigInteger)
 
 
+class SearchFacet(Base):
+    __tablename__ = 'search_facets'
+    user_collection_type = "user_collection"
+
+    id = Column(Integer, primary_key=True)
+    facet_name = Column(String)
+    facet_parameters = Column(JSONB)
+    facet_hash = Column(String)
+    facet_value = Column(JSONB)
+
 class UserAlgorithm(Base):
     __tablename__ = 'user_algorithms'
 
