@@ -291,7 +291,7 @@ The `social_graph` operation evaluates the inclusion or exclusion of user dids b
 
 -   **Fields**:
 
-    -   `username`: The username of the XGBoost model used for classification.
+    -   `username`: The username to pull followers/follows from.
     -   `<operator>`: either `is_in` or `is_not_in`.
     -   `<direction>`: either `follows` (i.e. users that `username` follows) or `followers` (i.e. users that `username` is followed by)
 -   **Example**:
@@ -303,7 +303,38 @@ The `social_graph` operation evaluates the inclusion or exclusion of user dids b
         "is_in",
         "follows"
     ]
+}
+```
+
+### 5\. Social List
+
+The `social_list` allows you to specify the did's for a set of users to select/reject based on that list explicitly (i.e. if you don't want to just shorthand through a user account). 
+
+-   **Syntax**:
+
+```json
+{
+    "social_list": [
+        "<did_list>",
+        "<operator>"
+    ]
 },
+```
+
+-   **Fields**:
+
+    -   `did_list`: The list of user did's to pull from
+    -   `<operator>`: either `is_in` or `is_not_in`.
+
+-   **Example**:
+
+```json
+{
+    "social_list": [
+        ["did:plc:ngokl2gnmpbvuvrfckja3g7p"],
+        "is_in"
+    ]
+}
 ```
 
 ## Models Section

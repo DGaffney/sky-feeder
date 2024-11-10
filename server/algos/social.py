@@ -17,7 +17,7 @@ class SocialParser(BaseParser):
         elif operator == "is_not_in":
             return create_info["author"] not in self.get_user_collection(actor_handle, direction).facet_value
 
-    def social_graph(self, record, create_info, actor_did_list, operator, direction):
+    def social_graph(self, record, create_info, actor_did_list, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
             return create_info["author"] in actor_did_list
