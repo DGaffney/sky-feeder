@@ -193,7 +193,8 @@ async def edit_algo(
     algo.algo_manifest = json.loads(feed_manifest)
     algo.display_name = display_name
     algo.description = description
-    algo.update_feed(request.session['username'], request.session['password'], request.session['session_string'])
+    response = algo.update_feed(request.session['username'], request.session['password'], request.session['session_string'])
+    algo.algo_uri = response[0].uri
     db.commit()
     return RedirectResponse(url="/my_feeds", status_code=303)
 
