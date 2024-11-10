@@ -2,6 +2,7 @@ import json
 import os
 from datetime import datetime
 import atproto
+import atproto_client
 from pydantic import ValidationError
 
 from fastapi import FastAPI, HTTPException, Request, Form, Depends
