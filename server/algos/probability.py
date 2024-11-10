@@ -33,7 +33,7 @@ class ProbabilityParser(BaseParser):
         # Don't laugh at this, noobody look, nobody look https://www.youtube.com/watch?v=E8Ew6K0W3RY
         return float(model.model.model.predict_proba([features])[0][0])
 
-    def probability_with_operator(self, record, model_params, comparator, threshold):
+    def probability_with_operator(self, record, create_info, model_params, comparator, threshold):
         """Evaluates the probability and applies a comparison operator against the threshold."""
         probability = self.probability_for_record(record, model_params["model_name"])
         return LogicEvaluator.compare(probability, comparator, threshold)

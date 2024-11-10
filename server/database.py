@@ -1,7 +1,7 @@
 import os
 from datetime import datetime
 from sqlalchemy import (
-    create_engine, Column, String, DateTime, BigInteger, Integer, ForeignKey, Table, Text, UniqueConstraint
+    create_engine, func, Column, String, DateTime, BigInteger, Integer, ForeignKey, Table, Text, UniqueConstraint
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
@@ -59,6 +59,16 @@ class SearchFacet(Base):
     facet_parameters = Column(JSONB)
     facet_hash = Column(String)
     facet_value = Column(JSONB)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
 
 class UserAlgorithm(Base):
     __tablename__ = 'user_algorithms'

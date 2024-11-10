@@ -7,11 +7,16 @@ from atproto_client.models.app.bsky.embed.external import ViewExternal
 from server.logger import logger
 HOSTNAME = os.getenv("HOSTNAME")
 class BlueskyAPI:
-    def __init__(self, username, password):
+    def __init__(self, username, password, session_string):
         self.username = username
         self.password = password
         self.client = Client()
-        self.client.login(self.username, self.password)
+        if not self.session_string:
+            self.client.login(self.username, self.password)
+            self.session_string = client.export_session_string()
+        else:
+            client.login(session_string=session_string)
+            self.session_string = client.export_session_string()
     
     def get_client_feeds(self):
         #needs cursoring/pagination

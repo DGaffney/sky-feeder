@@ -37,9 +37,9 @@ class AlgoManager:
     def models(self):
         return self.algo_manifest.get("models", []) or []
 
-    def record_matches_algo(self, record):
+    def record_matches_algo(self, record, create_info):
         """Evaluate the manifest against a given record."""
-        return self.logic_evaluator.evaluate(self.algo_manifest["filter"], record)
+        return self.logic_evaluator.evaluate(self.algo_manifest["filter"], record, create_info)
 
     def build_manifest_models(self):
         username = self.algo_manifest["author"]["username"]

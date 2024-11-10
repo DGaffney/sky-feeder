@@ -18,9 +18,9 @@ redis_conn = redis.from_url(redis_url)
 # Initialize RQ queue
 queue = Queue("algo_matcher", connection=redis_conn)
 # Load the AlgoManager, assuming it takes in a user-specific manifest
-def algo_matches(user_algorithm, record):
+def algo_matches(user_algorithm, record, create_info):
     algo_manager = AlgoManager(user_algorithm.algo_manifest)
-    return algo_manager.record_matches_algo(record)
+    return algo_manager.record_matches_algo(record, create_info)
 
 def match_algo(record_data):
     """

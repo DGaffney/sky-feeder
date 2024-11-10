@@ -31,7 +31,7 @@ class AttributeParser(BaseParser):
     def __init__(self):
         pass
 
-    def attribute_compare(self, record, field_selector, operator, target_value):
+    def attribute_compare(self, record, create_info, field_selector, operator, target_value):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         value = resolve_path(record, field_selector["var"])
         return LogicEvaluator.compare(value, operator, target_value)

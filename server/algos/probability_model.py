@@ -8,14 +8,14 @@ from server.algos.transformer import TransformerParser
 from typing import List, Tuple, Optional
 
 class ProbabilityModel:
-    def __init__(self, model_name, feature_modules, transformer_parser=None, username=None, password=None):
+    def __init__(self, model_name, feature_modules, transformer_parser=None, username=None, password=None, session_string=None):
         # Initialize the API client and log in
         self.model = None
         self.model_name = model_name
         self.feature_modules = feature_modules
         self.username = username
         self.password = password
-        self.client = Client()
+        self.client = BlueskyAPI(username, password, session_string).client
         # Initialize FeatureGenerator with a TransformerParser for embedding support
         self.transformer_parser = transformer_parser or TransformerParser()
         self.feature_generator = FeatureGenerator()

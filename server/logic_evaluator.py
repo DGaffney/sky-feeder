@@ -7,7 +7,7 @@ class LogicEvaluator:
         """Registers a custom operation."""
         self.operations[name] = func
 
-    def evaluate(self, condition, record):
+    def evaluate(self, condition, record, create_info):
         """Evaluates a JSON-like condition structure."""
         if "and" in condition:
             return all(self.evaluate(cond, record) for cond in condition["and"])
@@ -16,7 +16,7 @@ class LogicEvaluator:
         else:
             for op, params in condition.items():
                 if op in self.operations:
-                    return self.operations[op](record, *params)
+                    return self.operations[op](record, create_info, *params)
             raise ValueError(f"Unknown operation '{op}'")
 
     @staticmethod

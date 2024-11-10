@@ -1,4 +1,5 @@
 # shared_model_store.py
+from datetime import datetime, timedelta
 from model_provenance import ModelProvenance
 from sentence_transformers import SentenceTransformer
 import xgboost as xgb
@@ -16,13 +17,15 @@ class SharedModelStore:
         if keyname not in cls._search_facets:
             with SessionLocal() as db:
                 search_facet = db.query(SearchFacet).filter(SearchFacet.facet_name==SearchFacet.user_collection_type, SearchFacet.facet_parameters=={"actor_handle": actor_handle, "direction": direction}).first()
-                if not search_facet:
-                    search_facet = SearchFacet(facet_name=SearchFacet.user_collection_type, facet_parameters={"actor_handle": actor_handle, "direction": direction})
+                out_of_date = search_facet and (not search_facet.updated_at or search_facet.updated_at < datetime.now() - timedelta(days=1))
+                if not search_facet or out_of_date:
+                    search_facet = search_facet or SearchFacet(facet_name=SearchFacet.user_collection_type, facet_parameters={"actor_handle": actor_handle, "direction": direction})
                     if direction == "follows":
                         search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_follows(actor_handle)]
                     elif direction == "followers":
                         search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_followers(actor_handle)]
-                    db.add(search_facet)
+                    if not out_of_date:
+                        db.add(search_facet)
                     db.commit()
                 cls._search_facets[keyname] = search_facet
         return cls._search_facets[keyname]
