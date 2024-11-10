@@ -7,7 +7,7 @@ from atproto_client.models.app.bsky.embed.external import ViewExternal
 from server.logger import logger
 HOSTNAME = os.getenv("HOSTNAME")
 class BlueskyAPI:
-    def __init__(self, username, password, session_string):
+    def __init__(self, username, password, session_string=None):
         self.username = username
         self.password = password
         self.client = Client()
