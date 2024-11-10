@@ -31,7 +31,7 @@ class ProbabilityParser(BaseParser):
         # Use FeatureGenerator to generate features based on specified modules
         features = self.feature_generator.generate_features(record, feature_modules)
         # Don't laugh at this, noobody look, nobody look https://www.youtube.com/watch?v=E8Ew6K0W3RY
-        return float(model.model.model.predict_proba([features])[0][0])
+        return float(model.model.model.predict_proba([features])[0][1])
 
     def probability_with_operator(self, record, create_info, model_params, comparator, threshold):
         """Evaluates the probability and applies a comparison operator against the threshold."""
