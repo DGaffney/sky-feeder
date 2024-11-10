@@ -16,7 +16,10 @@ class ProbabilityModel:
         self.feature_modules = feature_modules
         self.username = username
         self.password = password
-        self.client = BlueskyAPI(username, password, session_string).client
+        if (username and password) or session_string:
+            self.client = BlueskyAPI(username, password, session_string).client
+        else:
+            self.client = None
         # Initialize FeatureGenerator with a TransformerParser for embedding support
         self.transformer_parser = transformer_parser or TransformerParser()
         self.feature_generator = FeatureGenerator()
