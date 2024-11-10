@@ -188,7 +188,7 @@ async def edit_algo(
         raise HTTPException(status_code=404, detail="Algorithm not found")
 
     # Update the algorithm details
-    algo.feed_name = feed_name
+    algo.record_name = feed_name
     logger.info(type(feed_manifest))
     algo.algo_manifest = json.loads(feed_manifest)
     algo.display_name = display_name
