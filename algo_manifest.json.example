@@ -33,7 +33,7 @@
       },
       {
         "model_probability": [
-          {"model_name": "news_without_science_model"},
+          {"model_name": "dril_detector"},
           ">=",
           0.9
         ]
@@ -54,6 +54,13 @@
         {"type": "time_features"},
         {"type": "vectorizer", "model_name": "all-MiniLM-L6-v2"},
         {"type": "post_metadata"}
+      ]
+    },
+    {
+      "model_name": "dril_detector",
+      "training_file": "dril_detector_dataset.json",
+      "feature_modules": [
+        {"type": "vectorizer", "model_name": "all-MiniLM-L6-v2"},
       ]
     }
   ],
