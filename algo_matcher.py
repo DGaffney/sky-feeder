@@ -36,7 +36,7 @@ def match_algo(record_data):
     with SessionLocal() as db:
         for user_algorithm in db.query(UserAlgorithm).all():
             record = models.get_or_create(record_data["record"], strict=False)
-            if algo_matches(user_algorithm, record, {'uri': record_data["uri"], 'cid': record_data["cid"], 'author': record_data["author"]}):
+            if algo_matches(user_algorithm, record, record_data["create_info"]):
                 any_matches = True
                 match_ids.append(user_algorithm.id)
         if any_matches:
