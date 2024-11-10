@@ -275,7 +275,7 @@ The `model_probability` operation evaluates the likelihood that a record matches
 
 ### 5\. Social Graph
 
-The `social_graph` operation evaluates the inclusion or exclusion of user dids based on a source actor and a direction.
+The `social_graph` operation evaluates the inclusion or exclusion of user dids based on a source actor and a direction. Note that when using this, you *must* add the author section with a valid username and app password at the top-level of the manifest, or else (currently at least) *the entire feed will fail to operate*. This is important!!
 
 -   **Syntax**:
 
@@ -336,6 +336,23 @@ The `models` section defines machine learning models used in `model_probability`
         "model_name": "news_without_science"
     }
 ]
+```
+
+## Author Section
+
+Some modules may require authorization into Bluesky in order to make API calls on your behalf. The `author` section defines provides the `username` and `password` combination so that downstream processes like label aggregation for ML models and social graph filtering can properly work. To generate an app-specific password please use [this link](https://bsky.app/settings/app-passwords)
+
+-   **Fields**:
+
+    -   `username`: Your Bluesky / ATProto username.
+    -   `password`: Your app password.
+-   **Example**:
+
+```json
+"author": {
+    "username": "devingaffney.com",
+    "password": "app-password"
+}
 ```
 
 
