@@ -13,9 +13,9 @@ class SocialParser(BaseParser):
     def user_collection_compare(self, record, create_info, actor_handle, operator, direction):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.get_user_collection(actor_handle, direction)
+            return create_info["author"] in self.get_user_collection(actor_handle, direction).facet_value
         elif operator == "is_not_in":
-            return create_info["author"] not in self.get_user_collection(actor_handle, direction)
+            return create_info["author"] not in self.get_user_collection(actor_handle, direction).facet_value
 
     def register_operations(self, logic_evaluator):
         # Register attribute comparison operation
