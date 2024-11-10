@@ -18,6 +18,7 @@ class SharedModelStore:
         if keyname not in cls._search_facets:
             with SessionLocal() as db:
                 search_facet = db.query(SearchFacet).filter(SearchFacet.facet_name==SearchFacet.user_collection_type, SearchFacet.facet_parameters=={"actor_handle": actor_handle, "direction": direction}).first()
+                # At some point maybe you could subscribe to graph changes and just update on some other worker? idk
                 out_of_date = search_facet and (
                     not search_facet.updated_at or 
                     search_facet.updated_at < datetime.now(timezone.utc) - timedelta(days=1)
