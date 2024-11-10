@@ -31,6 +31,7 @@ def match_algo(record_data):
     """
     any_matches = False
     match_ids = []
+    logger.info(f"record_data is: {record_data}")
     # Use a context manager for database session to ensure proper closing
     with SessionLocal() as db:
         for user_algorithm in db.query(UserAlgorithm).all():
