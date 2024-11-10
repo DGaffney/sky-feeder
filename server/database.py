@@ -89,14 +89,14 @@ class UserAlgorithm(Base):
     __table_args__ = (
         UniqueConstraint('user_id', 'algo_uri', name='uix_user_algo_uri'),
     )
-    def publish_feed(self, username, password, record_name, display_name, description):
-        return BlueskyAPI(username, password).publish_feed(record_name, display_name, description)
+    def publish_feed(self, username, password, session_string, record_name, display_name, description):
+        return BlueskyAPI(username, password, session_string).publish_feed(record_name, display_name, description)
 
-    def delete_feed(self, username, password):
-        deleted_feed = BlueskyAPI(username, password).delete_feed(self.algo_uri)
+    def delete_feed(self, username, password, session_string):
+        deleted_feed = BlueskyAPI(username, password, session_string).delete_feed(self.algo_uri)
 
-    def update_feed(self, username, password):
-        return BlueskyAPI(username, password).publish_feed(self.record_name, self.display_name, self.description, self.feed_did)
+    def update_feed(self, username, password, session_string):
+        return BlueskyAPI(username, password, session_string).publish_feed(self.record_name, self.display_name, self.description, self.feed_did)
 
 
 # Initialize the database tables

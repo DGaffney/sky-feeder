@@ -85,7 +85,7 @@ async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 2
 
 @app.get("/my_feeds")
 async def my_feeds(request: Request, db: Session = Depends(get_db)):
-    client = BlueskyAPI(request.session['username'], request.session['password'])
+    client = BlueskyAPI(request.session['username'], request.session['password'], request.session['session_string'])
     user_algos = db.query(UserAlgorithm).filter(UserAlgorithm.user_id == client.client.me.did).all()
     return templates.TemplateResponse("my_feeds.html", {"request": request, "feeds": client.get_client_feeds, "user_algos": user_algos})
 
@@ -101,7 +101,8 @@ async def login(request: Request, username: str = Form(...), password: str = For
     if is_app_passwordy(password):
         request.session['password'] = password
         try:
-            BlueskyAPI(username, password)
+            client = BlueskyAPI(username, password)
+            request.session['session_string'] = client.session_string
         except atproto_client.exceptions.UnauthorizedError:
             raise HTTPException(status_code=401, detail="This username/password combo looks to have failed on login at bsky - try a different combo?")
     else:
@@ -119,7 +120,7 @@ async def add_algo(
 ):
     try:
         # Create a new UserAlgorithm instance
-        client = BlueskyAPI(request.session['username'], request.session['password'])
+        client = BlueskyAPI(request.session['username'], request.session['password'], request.session['session_string'])
         new_algo = UserAlgorithm(
             user_id=client.client.me.did,
             algo_uri=feed_name,
@@ -135,6 +136,7 @@ async def add_algo(
         feed, feed_did = new_algo.publish_feed(
             request.session['username'],
             request.session['password'],
+            request.session['session_string'],
             feed_name,
             display_name,
             description
@@ -190,7 +192,7 @@ async def edit_algo(
     algo.algo_manifest = json.loads(feed_manifest)
     algo.display_name = display_name
     algo.description = description
-    algo.update_feed(request.session['username'], request.session['password'])
+    algo.update_feed(request.session['username'], request.session['password'], request.session['session_string'])
     db.commit()
     return RedirectResponse(url="/my_feeds", status_code=303)
 
@@ -198,7 +200,7 @@ async def edit_algo(
 async def delete_algo(request: Request, algo_id: int = Form(...), db: Session = Depends(get_db)):
     # Query for the algorithm by ID
     algo = db.query(UserAlgorithm).filter(UserAlgorithm.id == algo_id).first()
-    algo.delete_feed(request.session['username'], request.session['password'])
+    algo.delete_feed(request.session['username'], request.session['password'], request.session['session_string'])
     if not algo:
         raise HTTPException(status_code=404, detail="Algorithm not found")
 
