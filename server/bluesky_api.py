@@ -13,10 +13,10 @@ class BlueskyAPI:
         self.client = Client()
         if not session_string:
             self.client.login(self.username, self.password)
-            self.session_string = client.export_session_string()
+            self.session_string = self.client.export_session_string()
         else:
             client.login(session_string=session_string)
-            self.session_string = client.export_session_string()
+            self.session_string = self.client.export_session_string()
     
     def get_client_feeds(self):
         #needs cursoring/pagination

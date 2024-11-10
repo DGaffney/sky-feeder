@@ -86,7 +86,7 @@ async def get_feed_skeleton(feed: str = None, cursor: str = None, limit: int = 2
 
 @app.get("/my_feeds")
 async def my_feeds(request: Request, db: Session = Depends(get_db)):
-    client = BlueskyAPI(request.session['username'], request.session['password'], request.session['session_string'])
+    client = BlueskyAPI(request.session['username'], request.session['password'], request.session.get('session_string'))
     user_algos = db.query(UserAlgorithm).filter(UserAlgorithm.user_id == client.client.me.did).all()
     return templates.TemplateResponse("my_feeds.html", {"request": request, "feeds": client.get_client_feeds, "user_algos": user_algos})
 
