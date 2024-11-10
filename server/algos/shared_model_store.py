@@ -12,7 +12,8 @@ class SharedModelStore:
     _probability_models: Dict[str, xgb.XGBClassifier] = {}
     _search_facets: Dict[str, SearchFacet] = {}
 
-    def get_user_collection(actor_handle, direction, username, password):
+    @classmethod
+    def get_user_collection(cls, actor_handle, direction, username, password):
         keyname = f"{SearchFacet.user_collection_type}__{actor_handle}__{direction}"
         if keyname not in cls._search_facets:
             with SessionLocal() as db:
