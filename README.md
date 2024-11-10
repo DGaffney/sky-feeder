@@ -91,6 +91,13 @@ The `algorithm_manifest.json` file serves as the configuration blueprint for dep
         ]
       },
       {
+        "social_graph": [
+          "devingaffney.com",
+          "is_in",
+          "follows",
+        ]
+      },
+      {
         "text_similarity": [
           {"var": "text"},
           {

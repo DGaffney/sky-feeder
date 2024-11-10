@@ -15,8 +15,6 @@ class LogicEvaluator:
             return any(self.evaluate(cond, record) for cond in condition["or"])
         else:
             for op, params in condition.items():
-                if op == "model_probability":
-                    logger.info(f'Op is {op}, params is {params}')
                 if op in self.operations:
                     return self.operations[op](record, *params)
             raise ValueError(f"Unknown operation '{op}'")

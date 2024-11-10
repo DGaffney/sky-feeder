@@ -7,15 +7,16 @@ class SocialParser(BaseParser):
         self.username = username
         self.password = password
 
-    def get_user_collection(self, focus_did, direction):
-        model = SharedModelStore.get_user_collection(focus_did, direction, self.username, self.password)
-        return model.encode(text)
+    def get_user_collection(self, actor_handle, direction):
+        return SharedModelStore.get_user_collection(actor_handle, direction, self.username, self.password)
 
-    def user_collection_compare(self, record, field_selector, operator, target_value):
+    def user_collection_compare(self, record, actor_handle, operator, direction):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
-        value = resolve_path(record, field_selector[""])
-        return LogicEvaluator.compare(value, operator, target_value)
+        if operator == "is_in":
+            return record.did in self.get_user_collection(actor_handle, direction)
+        elif operator == "is_not_in":
+            return record.did not in self.get_user_collection(actor_handle, direction)
 
     def register_operations(self, logic_evaluator):
         # Register attribute comparison operation
-        logic_evaluator.add_operation("attribute_compare", self.attribute_compare)
+        logic_evaluator.add_operation("social_graph", self.user_collection_compare)

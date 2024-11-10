@@ -3,7 +3,8 @@ from model_provenance import ModelProvenance
 from sentence_transformers import SentenceTransformer
 import xgboost as xgb
 from typing import Dict, List
-from server.database import db, SearchFacet
+from server.database import SessionLocal, SearchFacet
+from server.bluesky_api import BlueskyAPI
 
 class SharedModelStore:
     _vector_models: Dict[str, SentenceTransformer] = {}
@@ -12,7 +13,7 @@ class SharedModelStore:
 
     def get_user_collection(actor_handle, direction, username, password):
         keyname = f"{SearchFacet.user_collection_type}__{actor_handle}__{direction}"
-        if keyname not in cls._vector_models:
+        if keyname not in cls._search_facets:
             with SessionLocal() as db:
                 search_facet = db.query(SearchFacet).filter(SearchFacet.facet_name==SearchFacet.user_collection_type, SearchFacet.facet_parameters=={"actor_handle": actor_handle, "direction": direction}).first()
                 if not search_facet:
@@ -21,9 +22,10 @@ class SharedModelStore:
                         search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_follows(actor_handle)]
                     elif direction == "followers":
                         search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_followers(actor_handle)]
+                    db.add(search_facet)
                     db.commit()
-                cls._vector_models[keyname] = search_facet
-        return cls._vector_models[keyname]
+                cls._search_facets[keyname] = search_facet
+        return cls._search_facets[keyname]
 
     def probability_model_file_paths(self, model_name):
         return f"./probability_models/{model_name}_model.joblib", f"./probability_models/{model_name}_manifest.json", f"./probability_models/{model_name}_sample_dataset.joblib"

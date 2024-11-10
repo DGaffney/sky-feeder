@@ -48,6 +48,13 @@ A manifest is defined as a JSON object with two main sections:
                 ]
             },
             {
+                "user_network": [
+                    "devingaffney.com",
+                    "is_in",
+                    "follows",
+                ]
+            },
+            {
                 "text_similarity": [
                     {
                         "var": "text"
@@ -264,6 +271,39 @@ The `model_probability` operation evaluates the likelihood that a record matches
         0.9
     ]
 }
+```
+
+### 5\. Social Graph
+
+The `social_graph` operation evaluates the inclusion or exclusion of user dids based on a source actor and a direction.
+
+-   **Syntax**:
+
+```json
+{
+    "social_graph": [
+        "<username>",
+        "<operator>",
+        "<direction>"
+    ]
+},
+```
+
+-   **Fields**:
+
+    -   `username`: The username of the XGBoost model used for classification.
+    -   `<operator>`: either `is_in` or `is_not_in`.
+    -   `<direction>`: either `follows` (i.e. users that `username` follows) or `followers` (i.e. users that `username` is followed by)
+-   **Example**:
+
+```json
+{
+    "social_graph": [
+        "devingaffney.com",
+        "is_in",
+        "follows"
+    ]
+},
 ```
 
 ## Models Section
