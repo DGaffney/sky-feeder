@@ -1,36 +1,39 @@
-ATProto Feed Generator with Advanced Algorithmic Logic
+Sky-Feeder
 ======================================================
 
 > Feed Generators are services that provide custom algorithms to users through the AT Protocol.
 
 Powered by [The AT Protocol SDK for Python](https://github.com/MarshalX/atproto)
 
-This project is a forked version of the original [ATProto Feed Generator](https://github.com/bluesky-social/feed-generator). It distinguishes itself by incorporating advanced algorithmic logic that allows for chaining diverse types of rules, including regular expressions, transformer similarities, and machine learning (ML) probabilities. These enhancements empower the generator to apply sophisticated analytics on data feeds to curate and filter them intelligently.
+This project is a forked version of the original [ATProto Feed Generator](https://github.com/bluesky-social/feed-generator). It extends that functionality by:
 
-[Official overview of Feed Generators](https://github.com/bluesky-social/feed-generator#overview) *(read it first)*
+- Adding a web portal for creating and manipulating feeds,
+- Establishing a "feed manifest" syntax for expressing the rule set for any type of algorithmic recipe for a feed,
+- Creating algorithm "operators" that generate boolean results for different types of comparisons to be made against the skeet stream
+
+A public-facing site that anyone can use to create their own feeds is currently available at the [Hellofeed](https://hellofeed.cognitivesurpl.us/) demo site. To learn more about feed generators please [review this documentation](https://github.com/bluesky-social/feed-generator#overview).
 
 Key Features
 ------------
 
 -   **Rule Chaining**: Supports chaining multiple rules using logical operators like `AND` and `OR` to build complex conditions for feed filtration.
-
 -   **Regex Evaluation**: Utilize regular expressions to match patterns within the data feed content.
-
 -   **Transformer Similarities**: Integrate transformer models for semantic text similarity analysis.
-
+-   **Social Graph Filtering**: Select/Reject skeets based on follower/following graph properties.
+-   **Attribute Matching**: Select/Reject skeets based on direct comparison on properties of the skeet stream.
 -   **ML Probability Assessments**: Calculate probabilities based on feature evaluations using ML models to classify and filter data.
-
 -   **Modular Design**: Facilitates the addition of new models and rule types with minimal changes to existing code.
 
 Getting Started
 ---------------
 
-We've set up this server with SQLite to store and query data. Feel free to switch this out for whichever database you prefer.
+We've set up this server with Postgres to store and query data. Feel free to switch this out for whichever database you prefer.
 
 ### Prerequisites
 
 -   Python 3.7+
 -   Optionally, create a virtual environment.
+-   Can run as Dockerized set up
 
 ### Installation
 
@@ -40,37 +43,30 @@ Install dependencies:
 
 Copy `.env.example` as `.env`. Fill in the variables.
 
-> **Note** To get the value for `FEED_URI`, you should publish the feed first.
-
 ### Implementing Logic
 
 Next, you will need to do two things:
 
-1.  **Implement indexing logic** in `server/data_filter.py`.
-
-2.  **Implement feed generation logic** in `server/algos`.
-
-    -   Use the provided `algorithm_manifest.json` file as the configuration blueprint for deploying the feed algorithms.
-    -   The `algorithm_manifest.json` contains definitions of models, their configurations, and how they interlink through rules to filter data.
-
-We've taken care of setting this server up with a `did:web`. However, you're free to switch this out for `did:plc` if you like---this may be preferable if you expect this Feed Generator to be long-standing and possibly migrating domains.
+1.  **JetStream ingest** in `server/data_filter.py`.
+2.  **Skeet Filtering Logic** in `server/algos`.
+    -   Use the provided `algorithm_manifest.json.example` file as the configuration blueprint for deploying the feed algorithms.
+    -   The `algorithm_manifest.json.example` contains definitions of models, their configurations, and how they interlink through rules to filter data.
+3. **Management Layer** in `server/app.py`, `server/database.py` and files referenced from there on.
 
 ### Algorithm Manifest
 
 #### `algorithm_manifest.json`
 
-The `algorithm_manifest.json` file serves as the configuration blueprint for deploying the feed algorithms. It contains the definition of models, their respective configurations, and how they interlink through rules to filter data.
+The `algorithm_manifest.json` file serves as the configuration blueprint for deploying the feed algorithms. In our implementation, we store algorithm manifests against `UserAlgorithm` objects, but these can be applied any other way you'd prefer. It contains the definition of models, their respective configurations, and how they interlink through rules to filter data. To learn more about the full set of available operators please review the [manifest documentation](https://github.com/DGaffney/sky-feeder/blob/main/MANIFEST_DOC.md).
 
 ##### Structure
 
 -   **`filter`**: Defines the condition set used for evaluating each feed item. The conditions use operations like `regex_matches`, `text_similarity`, and `model_probability`.
-
--   **`models`**: Lists the ML models used along with their feature modules. Each model declaration includes:
-
+-   **`models`**: Lists the ML models used along with their feature modules. Note that, for any model, you *must* provide the correct definition for a model as well as its feature modules in the correct order. We'll make that unnecessary later... at some point. Each model declaration includes:
     -   `model_name`: Unique identifier for the ML model.
     -   `training_file`: Source data used for model training.
     -   `feature_modules`: Features used to generate the necessary input vector for ML predictions.
--   **`author`**: Provides credentials to authenticate the model-building process.
+-   **`author`**: Provides credentials to authenticate the model-building process and social graph traversals.
 
 ##### Example
 
@@ -135,17 +131,6 @@ The `algorithm_manifest.json` file serves as the configuration blueprint for dep
 }
 ```
 
-Publishing Your Feed
---------------------
-
-To publish your feed, go to the script at `publish_feed.py` and fill in the variables at the top. Examples are included, and some are optional. To publish your feed generator, simply run:
-
-`python publish_feed.py`
-
-To update your feed's display data (name, avatar, description, etc.), just update the relevant variables and re-run the script.
-
-After successfully running the script, you should be able to see your feed from within the app, as well as share it by embedding a link in a post (similar to a quote post).
-
 Running the Server
 ------------------
 
@@ -159,7 +144,7 @@ Run the development FastAPI server:
 
 > **Warning** If you want to run the server with multiple workers, you should run the Data Stream (Firehose) separately.
 
-### Endpoints
+### Bluesky-Facing Endpoints
 
 -   `/.well-known/did.json`
 -   `/xrpc/app.bsky.feed.describeFeedGenerator`
@@ -170,7 +155,7 @@ Major Enhancements
 
 1.  **Logic Evaluation**: Integrated a Logic Evaluator in Python that applies JSON-like conditions using registered operations such as regex matching, text similarity, and model probability calculation.
 
-2.  **Algorithms Implementation in Python**: Implemented key classes like `AlgoManager`, `ProbabilityParser`, `RegexParser`, and `TransformerParser` which handle respective tasks and provide operations for evaluation.
+2.  **Algorithmic Operator Implementations in Python**: Implemented key classes like `AttributeParser`, `ProbabilityParser`, `RegexParser`, `SocialParser`, and `TransformerParser` which handle respective tasks and provide operations for evaluation.
 
 3.  **Feature Generation**: The `FeatureGenerator` class captures various features such as vectorized text using transformer models, metadata, and temporal features, which enrich the ML model inputs.
 
@@ -178,12 +163,3 @@ Major Enhancements
 
 5.  **Enhanced Model Management**: Support for XGBoost and transformer models, including features for model training, evaluation, and inference.
 
-Conclusion
-----------
-
-This project significantly extends the capabilities of the original feed generator. By deploying advanced algorithmic features, it positions itself as a dynamic and flexible system for curating data feeds using state-of-the-art machine learning techniques. Further development can explore deeper integration with additional ML models and enhanced scalability for high-volume data operations.
-
-License
--------
-
-MIT

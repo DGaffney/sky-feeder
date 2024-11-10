@@ -4,7 +4,7 @@ from model_provenance import ModelProvenance
 from atproto import AtUri, Client, IdResolver, models
 from sklearn.model_selection import train_test_split
 from server.algos.feature_generator import FeatureGenerator
-from server.algos.transformer import TransformerParser
+from server.algos.operators.transformer import TransformerParser
 from typing import List, Tuple, Optional
 
 class ProbabilityModel:

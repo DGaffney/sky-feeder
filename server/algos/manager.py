@@ -1,11 +1,11 @@
 import os
 import json
 from server.logic_evaluator import LogicEvaluator
-from server.algos.probability import ProbabilityParser
-from server.algos.regex import RegexParser
-from server.algos.transformer import TransformerParser
-from server.algos.attribute import AttributeParser
-from server.algos.social import SocialParser
+from server.algos.operators.probability import ProbabilityParser
+from server.algos.operators.regex import RegexParser
+from server.algos.operators.transformer import TransformerParser
+from server.algos.operators.attribute import AttributeParser
+from server.algos.operators.social import SocialParser
 from server.algos.probability_model import ProbabilityModel
 
 MANIFEST_FILE = os.getenv("MANIFEST_FILE", "algo_manifest.json")

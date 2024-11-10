@@ -1,7 +1,7 @@
 # feature_generator.py
 
 import numpy as np
-from server.algos.transformer import TransformerParser
+from server.algos.operators.transformer import TransformerParser
 from server.algos.shared_model_store import SharedModelStore
 class FeatureGenerator:
     def generate_features(self, record, feature_modules):
