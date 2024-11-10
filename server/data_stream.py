@@ -38,7 +38,10 @@ def _get_ops_by_type(commit: models.ComAtprotoSyncSubscribeRepos.Commit) -> defa
                 continue
 
             create_info = {'uri': str(uri), 'cid': str(op.cid), 'author': commit.repo}
-            redis_conn.sadd("bluesky_user_dids", create_info["author"])
+            try:
+                redis_conn.sadd("bluesky_user_dids", create_info["author"])
+            except:
+                logger.info("SADD Fails for momentary read-only issue")
             record_raw_data = car.blocks.get(op.cid)
             if not record_raw_data:
                 continue
