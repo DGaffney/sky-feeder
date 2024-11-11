@@ -89,7 +89,7 @@ class User(Base):
     )
 
     @classmethod
-    def get_or_create(cls, client):
+    def get_or_create(cls, db, client):
         user = db.query(User).filter(User.user_id == client.client.me.did).first()
         if not user:
             user = User(user_id = client.client.me.did)
