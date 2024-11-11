@@ -12,7 +12,7 @@ class SocialParser(BaseParser):
         return SharedModelStore.get_starter_pack(starter_pack_url, self.username, self.password, self.session_string)
 
     def get_list(self, list_url):
-        return SharedModelStore.get_starter_pack(list_url, self.username, self.password, self.session_string)
+        return SharedModelStore.get_list(list_url, self.username, self.password, self.session_string)
 
     def get_user_collection(self, actor_handle, direction):
         return SharedModelStore.get_user_collection(actor_handle, direction, self.username, self.password, self.session_string)
