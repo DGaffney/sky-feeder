@@ -17,7 +17,7 @@ class BlueskyAPI:
         else:
             try:
                 self.client.login(session_string=session_string)
-            except atproto_client.exceptions.BadRequestError
+            except atproto_client.exceptions.BadRequestError:
                 self.client.login(self.username, self.password)
             self.session_string = self.client.export_session_string()
     
