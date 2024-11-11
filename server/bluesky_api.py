@@ -1,7 +1,7 @@
 import os
 import re
 from atproto import Client, models, AtUri
-
+import atproto_client
 from atproto_client.models.app.bsky.embed.external import ViewExternal
 
 from server.logger import logger
@@ -15,7 +15,10 @@ class BlueskyAPI:
             self.client.login(self.username, self.password)
             self.session_string = self.client.export_session_string()
         else:
-            self.client.login(session_string=session_string)
+            try:
+                self.client.login(session_string=session_string)
+            except atproto_client.exceptions.BadRequestError
+                self.client.login(self.username, self.password)
             self.session_string = self.client.export_session_string()
     
     def get_client_feeds(self):
