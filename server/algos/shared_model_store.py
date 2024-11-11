@@ -56,14 +56,14 @@ class SharedModelStore:
 
     @classmethod
     def get_starter_pack_value(cls, params, username, password, session_string):
-        return [e.did for e in BlueskyAPI(username, password, session_string).get_starter_pack_members(params["starter_pack_url"])]
+        return [e.subject.did for e in BlueskyAPI(username, password, session_string).get_starter_pack_members(params["starter_pack_url"])]
 
     @classmethod
     def get_list_value(cls, params, username, password, session_string):
         client = BlueskyAPI(username, password, session_string)
         _,_,_,_,handle,_,id = params["list_url"].split("/")
         profile = client.client.get_profile(handle)
-        return [e.did for e in client.get_all_list_members(f"at://{profile.did}/app.bsky.graph.list/{id}")]
+        return [e.subject.did for e in client.get_all_list_members(f"at://{profile.did}/app.bsky.graph.list/{id}")]
 
     @classmethod
     def get_user_collection(cls, actor_handle, direction, username, password, session_string):
