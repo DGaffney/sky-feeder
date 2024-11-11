@@ -56,7 +56,7 @@ class BlueskyAPI:
             if not response.cursor:
                 break
             cursor = response.cursor
-        return follows
+        return members
     
     def get_all_follows(self, actor_handle):
         cursor = None
