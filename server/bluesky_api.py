@@ -69,7 +69,7 @@ class BlueskyAPI:
             cursor = response.cursor
         return follows
     
-    def get_all_follower_dids(self, actor_handle):
+    def get_all_followers(self, actor_handle):
         cursor = None
         followers = []
         while True:

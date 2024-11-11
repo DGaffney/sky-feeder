@@ -24,7 +24,10 @@ def algo_matches(user, user_algorithm, record, create_info):
         author_clause = {"username": user.username, "password": user.app_password, "session_string": user.session_string}
     user_algorithm.algo_manifest["author"] = author_clause
     algo_manager = AlgoManager(user_algorithm.algo_manifest)
-    return algo_manager.record_matches_algo(record, create_info)
+    try:
+        return algo_manager.record_matches_algo(record, create_info)
+    except:
+        return False
 
 def match_algo(record_data):
     """

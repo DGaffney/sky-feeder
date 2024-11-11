@@ -368,7 +368,7 @@ The `starter_pack_member` allows you to specify the URL for a starter pack of us
 }
 ```
 
-### 6\. List Member
+### 7\. List Member
 
 The `list_member` allows you to specify the URL for a list of users to select/reject based on that list.
 
