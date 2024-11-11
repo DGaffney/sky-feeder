@@ -14,7 +14,7 @@ from sqlalchemy.orm import Session
 
 from server.bluesky_api import BlueskyAPI, is_app_passwordy
 from server import config
-from server.database import UserAlgorithm, get_db
+from server.database import UserAlgorithm, User, get_db
 from server.logger import logger
 from server.algos.algo import get_posts
 app = FastAPI()
