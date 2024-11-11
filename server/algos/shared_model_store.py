@@ -37,7 +37,7 @@ class SharedModelStore:
                 cls._search_facets[keyname] = search_facet
 
     @classmethod
-    def get_facet(cls, facet_type, facet_parameters, value_provider, keyname_template, value_function):
+    def get_facet(cls, facet_type, facet_parameters, keyname_template, value_function):
         keyname = keyname_template.format(**facet_parameters)
         value_provider = lambda params: value_function(
             params, username, password, session_string
@@ -70,7 +70,6 @@ class SharedModelStore:
         return cls.get_facet(
             facet_type=SearchFacet.user_collection_type,
             facet_parameters={"actor_handle": actor_handle, "direction": direction},
-            value_provider=value_provider,
             keyname_template="{actor_handle}__{direction}",
             value_function=cls.get_user_collection_value
         )
@@ -80,7 +79,6 @@ class SharedModelStore:
         return cls.get_facet(
             facet_type=SearchFacet.starter_pack_type,
             facet_parameters={"starter_pack_url": starter_pack_url},
-            value_provider=value_provider,
             keyname_template="{starter_pack_url}",
             value_function=cls.get_starter_pack_value
         )
@@ -90,7 +88,6 @@ class SharedModelStore:
         return cls.get_facet(
             facet_type=SearchFacet.starter_pack_type,
             facet_parameters={"list_url": list_url},
-            value_provider=value_provider,
             keyname_template="{list_url}",
             value_function=cls.get_list_value
         )

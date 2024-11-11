@@ -6,7 +6,7 @@ from rq import Queue, Worker, get_current_job
 from atproto import models
 from server.logger import logger
 from server.algos.manager import AlgoManager
-from server.database import SessionLocal, UserAlgorithm, Post
+from server.database import SessionLocal, UserAlgorithm, Post, User
 from server.algos.shared_model_store import SharedModelStore
 
 
