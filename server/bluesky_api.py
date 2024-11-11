@@ -58,6 +58,17 @@ class BlueskyAPI:
             cursor = response.cursor
         return members
     
+    def get_all_lists(self, user_did):
+        cursor = None
+        lists = []
+        while True:
+            response = self.client.app.bsky.graph.get_lists({"actor": user_did, "cursor": cursor, "limit": 100})
+            lists.extend(response.lists)
+            if not response.cursor:
+                break
+            cursor = response.cursor
+        return lists
+    
     def get_all_follows(self, actor_handle):
         cursor = None
         follows = []
