@@ -69,6 +69,36 @@ class SearchFacet(Base):
         nullable=False,
     )
 
+class User(Base):
+    __tablename__ = 'users'
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(String, index=True)
+    username = Column(String, index=True)
+    # I hate that I'm doing this I would much rather not store this but login logic blows rn
+    app_password = Column(String)
+    session_string = Column(String)
+    created_at = Column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+
+    @classmethod
+    def get_or_create(cls, client):
+        user = db.query(User).filter(User.user_id == client.client.me.did).first()
+        if not user:
+            user = User(user_id = client.client.me.did)
+            db.add(user)
+        user.username = client.username
+        user.app_password = client.password
+        user.session_string = client.session_string
+        db.commit()
+
 
 class UserAlgorithm(Base):
     __tablename__ = 'user_algorithms'

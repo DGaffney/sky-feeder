@@ -16,6 +16,7 @@ class ProbabilityModel:
         self.feature_modules = feature_modules
         self.username = username
         self.password = password
+        self.session_string = session_string
         if (username and password) or session_string:
             self.client = BlueskyAPI(username, password, session_string).client
         else:
@@ -63,8 +64,6 @@ class ProbabilityModel:
         Returns:
             dict: A dictionary mapping each original URL to its fetched record or None if not fetched.
         """
-        if self.username and self.password:
-            self.client.login(self.username, self.password)
         url_to_record = {}
         uri_batch = []
         

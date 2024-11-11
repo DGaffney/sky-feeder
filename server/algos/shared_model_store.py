@@ -13,27 +13,87 @@ class SharedModelStore:
     _search_facets: Dict[str, SearchFacet] = {}
 
     @classmethod
-    def get_user_collection(cls, actor_handle, direction, username, password):
-        keyname = f"{SearchFacet.user_collection_type}__{actor_handle}__{direction}"
+    def manage_search_facet(cls, keyname, facet_name, facet_parameters, value_provider):
         if keyname not in cls._search_facets:
             with SessionLocal() as db:
-                search_facet = db.query(SearchFacet).filter(SearchFacet.facet_name==SearchFacet.user_collection_type, SearchFacet.facet_parameters=={"actor_handle": actor_handle, "direction": direction}).first()
-                # At some point maybe you could subscribe to graph changes and just update on some other worker? idk
+                search_facet = db.query(SearchFacet).filter(
+                    SearchFacet.facet_name == facet_name,
+                    SearchFacet.facet_parameters == facet_parameters
+                ).first()
                 out_of_date = search_facet and (
                     not search_facet.updated_at or 
                     search_facet.updated_at < datetime.now(timezone.utc) - timedelta(days=1)
                 )
                 if not search_facet or out_of_date:
-                    search_facet = search_facet or SearchFacet(facet_name=SearchFacet.user_collection_type, facet_parameters={"actor_handle": actor_handle, "direction": direction})
-                    if direction == "follows":
-                        search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_follows(actor_handle)]
-                    elif direction == "followers":
-                        search_facet.facet_value = [e.did for e in BlueskyAPI(username, password).get_all_followers(actor_handle)]
+                    search_facet = search_facet or SearchFacet(
+                        facet_name=facet_name,
+                        facet_parameters=facet_parameters
+                    )
+                    search_facet.facet_value = value_provider(facet_parameters)
+                    
                     if not out_of_date:
                         db.add(search_facet)
                     db.commit()
                 cls._search_facets[keyname] = search_facet
+
+    @classmethod
+    def get_facet(cls, facet_type, facet_parameters, value_provider, keyname_template, value_function):
+        keyname = keyname_template.format(**facet_parameters)
+        value_provider = lambda params: value_function(
+            params, username, password, session_string
+        )
+        cls.manage_search_facet(keyname, facet_type, facet_parameters, value_provider)
         return cls._search_facets[keyname]
+
+    @classmethod
+    def get_user_collection_value(cls, params, username, password, session_string):
+        api = BlueskyAPI(username, password, session_string)
+        if params["direction"] == "follows":
+            return [e.did for e in api.get_all_follows(params["actor_handle"])]
+        elif direction == "followers":
+            return [e.did for e in api.get_all_followers(params["actor_handle"])]
+        return []
+
+    @classmethod
+    def get_starter_pack_value(cls, params, username, password, session_string):
+        return [e.did for e in BlueskyAPI(username, password, session_string).get_starter_pack_members(params["starter_pack_url"])]
+
+    @classmethod
+    def get_list_value(cls, params, username, password, session_string):
+        client = BlueskyAPI(username, password, session_string)
+        _,_,_,_,handle,_,id = params["list_url"].split("/")
+        profile = client.client.get_profile(handle)
+        return [e.did for e in client.get_all_list_members(f"at://{profile.did}/app.bsky.graph.list/{id}")]
+
+    @classmethod
+    def get_user_collection(cls, actor_handle, direction, username, password, session_string):
+        return cls.get_facet(
+            facet_type=SearchFacet.user_collection_type,
+            facet_parameters={"actor_handle": actor_handle, "direction": direction},
+            value_provider=value_provider,
+            keyname_template="{actor_handle}__{direction}",
+            value_function=cls.get_user_collection_value
+        )
+
+    @classmethod
+    def get_starter_pack(cls, starter_pack_url, username, password, session_string):
+        return cls.get_facet(
+            facet_type=SearchFacet.starter_pack_type,
+            facet_parameters={"starter_pack_url": starter_pack_url},
+            value_provider=value_provider,
+            keyname_template="{starter_pack_url}",
+            value_function=cls.get_starter_pack_value
+        )
+
+    @classmethod
+    def get_list(cls, list_url, username, password, session_string):
+        return cls.get_facet(
+            facet_type=SearchFacet.starter_pack_type,
+            facet_parameters={"list_url": list_url},
+            value_provider=value_provider,
+            keyname_template="{list_url}",
+            value_function=cls.get_list_value
+        )
 
     def probability_model_file_paths(self, model_name):
         return f"./probability_models/{model_name}_model.joblib", f"./probability_models/{model_name}_manifest.json", f"./probability_models/{model_name}_sample_dataset.joblib"

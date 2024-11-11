@@ -41,6 +41,23 @@ class BlueskyAPI:
     def delete_feed(self, algo_uri):
         return self.client.app.bsky.feed.generator.delete(self.client.me.did, AtUri.from_str(algo_uri).rkey)
     
+    def get_starter_pack_members(self, starter_pack_url):
+        _,_,_,_,handle,id = starter_pack_url.split("/")
+        starter_pack_uri = f"at://{handle}/app.bsky.graph.starterpack/{id}"
+        response = client.client.app.bsky.graph.get_starter_pack({"starter_pack": starter_pack_uri})
+        return self.get_all_list_members(response.starter_pack.list.uri)
+        
+    def get_all_list_members(self, list_uri):
+        cursor = None
+        members = []
+        while True:
+            response = self.client.app.bsky.graph.get_list({"list": list_uri, "limit": 100})
+            members.extend(response.items)
+            if not response.cursor:
+                break
+            cursor = response.cursor
+        return follows
+    
     def get_all_follows(self, actor_handle):
         cursor = None
         follows = []

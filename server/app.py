@@ -95,7 +95,7 @@ async def login_page(request: Request):
     return templates.TemplateResponse("login.html", {"request": request})
 
 @app.post("/login", response_class=HTMLResponse)
-async def login(request: Request, username: str = Form(...), password: str = Form(...)):
+async def login(request: Request, username: str = Form(...), password: str = Form(...), db: Session = Depends(get_db)):
     response = RedirectResponse(url="/my_feeds", status_code=302)
     manager.set_cookie(response, username)
     request.session['username'] = username
@@ -106,6 +106,7 @@ async def login(request: Request, username: str = Form(...), password: str = For
             request.session['session_string'] = client.session_string
         except atproto_client.exceptions.UnauthorizedError:
             raise HTTPException(status_code=401, detail="This username/password combo looks to have failed on login at bsky - try a different combo?")
+        user = User.get_or_create(db, client)
     else:
         raise HTTPException(status_code=401, detail="This doesn't look app-passwordy - please go generate one!")
     return response

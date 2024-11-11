@@ -275,7 +275,7 @@ The `model_probability` operation evaluates the likelihood that a record matches
 
 ### 5\. Social Graph
 
-The `social_graph` operation evaluates the inclusion or exclusion of user dids based on a source actor and a direction. Note that when using this, you *must* add the author section with a valid username and app password at the top-level of the manifest, or else (currently at least) *the entire feed will fail to operate*. This is important!!
+The `social_graph` operation evaluates the inclusion or exclusion of user dids based on a source actor and a direction. Note that when using this, if you do not specify an author to act upon, we will use API requests from your signed-in account.
 
 -   **Syntax**:
 
@@ -332,6 +332,68 @@ The `social_list` allows you to specify the did's for a set of users to select/r
 {
     "social_list": [
         ["did:plc:ngokl2gnmpbvuvrfckja3g7p"],
+        "is_in"
+    ]
+}
+```
+
+### 6\. Starter Pack Member
+
+The `starter_pack_member` allows you to specify the URL for a starter pack of users to select/reject based on that list.
+
+-   **Syntax**:
+
+```json
+{
+    "starter_pack_member": [
+        "<starter_pack_url>",
+        "<operator>"
+    ]
+},
+```
+
+-   **Fields**:
+
+    -   `starter_pack_url`: The starter pack URL
+    -   `<operator>`: either `is_in` or `is_not_in`.
+
+-   **Example**:
+
+```json
+{
+    "starter_pack_member": [
+        "https://bsky.app/starter-pack/propublica.org/3l6iflmcj322n",
+        "is_in"
+    ]
+}
+```
+
+### 6\. List Member
+
+The `list_member` allows you to specify the URL for a list of users to select/reject based on that list.
+
+-   **Syntax**:
+
+```json
+{
+    "list_member": [
+        "<list_url>",
+        "<operator>"
+    ]
+},
+```
+
+-   **Fields**:
+
+    -   `list_url`: The list URL
+    -   `<operator>`: either `is_in` or `is_not_in`.
+
+-   **Example**:
+
+```json
+{
+    "list_member": [
+        "https://bsky.app/profile/numb.comfortab.ly/lists/3lam62tvlqz2l",
         "is_in"
     ]
 }

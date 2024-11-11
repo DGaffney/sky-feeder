@@ -30,7 +30,8 @@ class AlgoManager:
     def username_password_from_algo_manifest(self):
         return [
             (self.algo_manifest.get("author", {}) or {}).get("username"),
-            (self.algo_manifest.get("author", {}) or {}).get("password")
+            (self.algo_manifest.get("author", {}) or {}).get("password"),
+            (self.algo_manifest.get("author", {}) or {}).get("session_string"),
         ]
 
     @property
@@ -44,6 +45,7 @@ class AlgoManager:
     def build_manifest_models(self):
         username = self.algo_manifest["author"]["username"]
         password = self.algo_manifest["author"]["password"]
+        password = self.algo_manifest["author"].get("session_string")
         for model in self.models:
             probability_model = ProbabilityModel(
                 model["model_name"],
@@ -51,6 +53,7 @@ class AlgoManager:
                 None,
                 username,
                 password,
+                session_string
             )
             probability_model.build_model(json.loads(open(model["training_file"]).read()))
 
