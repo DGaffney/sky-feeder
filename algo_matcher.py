@@ -18,12 +18,10 @@ redis_conn = redis.from_url(redis_url)
 # Initialize RQ queue
 queue = Queue("algo_matcher", connection=redis_conn)
 # Load the AlgoManager, assuming it takes in a user-specific manifest
-def algo_matches(db, user_algorithm, record, create_info):
+def algo_matches(user, user_algorithm, record, create_info):
     author_clause = user_algorithm.algo_manifest.get("author", {}) or {}
-    if not author_clause:
-        user = db.query(User).filter(User.user_id == user_algorithm.user_id).first()
-        if user:
-            author_clause = {"username": user.username, "password": user.app_password, "session_string": user.session_string}
+    if not author_clause and user:
+        author_clause = {"username": user.username, "password": user.app_password, "session_string": user.session_string}
     user_algorithm.algo_manifest["author"] = author_clause
     algo_manager = AlgoManager(user_algorithm.algo_manifest)
     return algo_manager.record_matches_algo(record, create_info)
@@ -41,8 +39,9 @@ def match_algo(record_data):
     # Use a context manager for database session to ensure proper closing
     with SessionLocal() as db:
         for user_algorithm in db.query(UserAlgorithm).all():
+            user = db.query(User).filter(User.user_id == user_algorithm.user_id).first()
             record = models.get_or_create(record_data["record"], strict=False)
-            if algo_matches(db, user_algorithm, record, record_data["create_info"]):
+            if algo_matches(user, user_algorithm, record, record_data["create_info"]):
                 any_matches = True
                 match_ids.append(user_algorithm.id)
         if any_matches:
