@@ -1,4 +1,3 @@
-import time
 import os
 import logging
 import json
@@ -39,7 +38,6 @@ def match_algo(record_data):
     logger.info(record_data)
     # Use a context manager for database session to ensure proper closing
     with SessionLocal() as db:
-        time.sleep(10)
         for user_algorithm in db.query(UserAlgorithm).all():
             user = db.query(User).filter(User.user_id == user_algorithm.user_id).first()
             record = models.get_or_create(record_data["record"], strict=False)

@@ -20,23 +20,23 @@ class SocialParser(BaseParser):
     def starter_pack_member(self, record, create_info, starter_pack_url, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.get_starter_pack(starter_pack_url).facet_value
+            return create_info["author"] in self.get_starter_pack(starter_pack_url)
         elif operator == "is_not_in":
-            return create_info["author"] not in self.get_starter_pack(starter_pack_url).facet_value
+            return create_info["author"] not in self.get_starter_pack(starter_pack_url)
 
     def list_member(self, record, create_info, list_url, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.get_list(list_url).facet_value
+            return create_info["author"] in self.get_list(list_url)
         elif operator == "is_not_in":
-            return create_info["author"] not in self.get_list(list_url).facet_value
+            return create_info["author"] not in self.get_list(list_url)
 
     def social_graph(self, record, create_info, actor_handle, operator, direction):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.get_user_collection(actor_handle, direction).facet_value
+            return create_info["author"] in self.get_user_collection(actor_handle, direction)
         elif operator == "is_not_in":
-            return create_info["author"] not in self.get_user_collection(actor_handle, direction).facet_value
+            return create_info["author"] not in self.get_user_collection(actor_handle, direction)
 
     def social_list(self, record, create_info, actor_did_list, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""

@@ -51,7 +51,7 @@ class BlueskyAPI:
         cursor = None
         members = []
         while True:
-            response = self.client.app.bsky.graph.get_list({"list": list_uri, "limit": 100})
+            response = self.client.app.bsky.graph.get_list({"list": list_uri, "cursor": cursor, "limit": 100})
             members.extend(response.items)
             if not response.cursor:
                 break
