@@ -53,6 +53,8 @@ class SubscriptionState(Base):
 class SearchFacet(Base):
     __tablename__ = 'search_facets'
     user_collection_type = "user_collection"
+    starter_pack_type = "starter_pack"
+    list_type = "user_list"
 
     id = Column(Integer, primary_key=True)
     facet_name = Column(String)

@@ -86,7 +86,7 @@ class SharedModelStore:
     @classmethod
     def get_list(cls, list_url, username, password, session_string):
         return cls.get_facet(
-            facet_type=SearchFacet.starter_pack_type,
+            facet_type=SearchFacet.list_type,
             facet_parameters={"list_url": list_url},
             keyname_template="{list_url}",
             value_function=cls.get_list_value
