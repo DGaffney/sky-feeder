@@ -11,22 +11,25 @@ class SocialParser(BaseParser):
     def get_starter_pack(self, starter_pack_url):
         return SharedModelStore.get_starter_pack(starter_pack_url, self.username, self.password, self.session_string)
 
+    def get_list(self, list_url):
+        return SharedModelStore.get_starter_pack(list_url, self.username, self.password, self.session_string)
+
     def get_user_collection(self, actor_handle, direction):
         return SharedModelStore.get_user_collection(actor_handle, direction, self.username, self.password, self.session_string)
 
     def starter_pack_member(self, record, create_info, starter_pack_url, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.starter_pack_member(actor_handle, direction).facet_value
+            return create_info["author"] in self.get_starter_pack(starter_pack_url).facet_value
         elif operator == "is_not_in":
-            return create_info["author"] not in self.starter_pack_member(actor_handle, direction).facet_value
+            return create_info["author"] not in self.get_starter_pack(starter_pack_url).facet_value
 
-    def list_member(self, record, create_info, starter_pack_url, operator):
+    def list_member(self, record, create_info, list_url, operator):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
         if operator == "is_in":
-            return create_info["author"] in self.starter_pack_member(actor_handle, direction).facet_value
+            return create_info["author"] in self.get_list(list_url).facet_value
         elif operator == "is_not_in":
-            return create_info["author"] not in self.starter_pack_member(actor_handle, direction).facet_value
+            return create_info["author"] not in self.get_list(list_url).facet_value
 
     def social_graph(self, record, create_info, actor_handle, operator, direction):
         """Resolve the attribute path and apply a comparison operation using LogicEvaluator.compare."""
