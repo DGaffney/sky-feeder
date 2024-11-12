@@ -34,7 +34,13 @@ class SharedModelStore:
                     if not out_of_date:
                         db.add(search_facet)
                     db.commit()
-                cls._search_facets[keyname] = search_facet.facet_value
+                val = search_facet.facet_value
+                if isinstance(search_facet.facet_value, list):
+                    try:
+                        val = set(search_facet.facet_value)
+                    except:
+                        val = search_facet.facet_value
+                cls._search_facets[keyname] = val
 
     @classmethod
     def get_facet(cls, facet_type, facet_parameters, social_auth, keyname_template, value_function):
