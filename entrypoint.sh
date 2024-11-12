@@ -1,7 +1,7 @@
 #!/bin/sh
 
 if [ "$1" = "api" ]; then
-    exec uvicorn "$APP_MODULE" --host "$HOST" --port "$PORT" --reload
+    exec uvicorn "$APP_MODULE" --host "$HOST" --port "$PORT" --workers 4
 elif [ "$1" = "data-stream" ]; then
     python streamer.py
 elif [ "$1" = "algo-matcher-worker" ]; then
