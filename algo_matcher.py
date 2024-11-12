@@ -44,6 +44,7 @@ def match_algo(record_data):
         for user_algorithm in db.query(UserAlgorithm).all():
             user = db.query(User).filter(User.user_id == user_algorithm.user_id).first()
             record = models.get_or_create(record_data["record"], strict=False)
+            algo_matches(user, user_algorithm, record, record_data["create_info"])
             if algo_matches(user, user_algorithm, record, record_data["create_info"]):
                 any_matches = True
                 match_ids.append(user_algorithm.id)

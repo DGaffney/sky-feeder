@@ -40,3 +40,4 @@ class LogicEvaluator:
             return value != threshold
         else:
             raise ValueError(f"Unknown comparator '{operator}'")
+
