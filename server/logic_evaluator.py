@@ -32,5 +32,11 @@ class LogicEvaluator:
             return value > threshold
         elif operator == "<":
             return value < threshold
+        elif operator == "in":
+            return value in threshold
+        elif operator == "not_in":
+            return value not in threshold
+        elif operator == "!=":
+            return value != threshold
         else:
             raise ValueError(f"Unknown comparator '{operator}'")
