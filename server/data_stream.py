@@ -50,7 +50,7 @@ def _get_ops_by_type(commit: models.ComAtprotoSyncSubscribeRepos.Commit) -> defa
             for record_type, record_nsid in _INTERESTED_RECORDS.items():
                 if uri.collection == record_nsid and models.is_record_type(record, record_type):
                     operation_by_type[record_nsid]['created'].append({'record': record, **create_info})
-                    if queue.count < STOPGAP_QUEUE_DEPTH_THRESHOLD and random.random() < 0.1:
+                    if queue.count < STOPGAP_QUEUE_DEPTH_THRESHOLD:# and random.random() < 0.1:
                         job = queue.enqueue(match_algo, {'record': record_raw_data, 'create_info': create_info})
                     break
 
