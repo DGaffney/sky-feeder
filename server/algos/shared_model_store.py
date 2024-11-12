@@ -22,7 +22,7 @@ class SharedModelStore:
                 ).first()
                 out_of_date = search_facet and (
                     not search_facet.updated_at or 
-                    search_facet.updated_at < datetime.now(timezone.utc) - timedelta(days=1)
+                    search_facet.updated_at < datetime.now(timezone.utc) - timedelta(days=10)
                 )
                 if not search_facet or out_of_date:
                     search_facet = search_facet or SearchFacet(
